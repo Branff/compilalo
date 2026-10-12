@@ -38,9 +38,10 @@
    - **Controllo di Qualità e Build:**
      - `npm run check` completato con 0 errori e 0 warning.
      - `npm run build` completato con generazione statica completa nella cartella `build/`.
-   - **Inizializzazione Git Repository:**
-     - Creato `.gitignore` completo.
-     - Inizializzato repository git locale con branch `main` e commit root `41d4b9f`.
+   - **Repository GitHub e Deploy Remoto (`Branff/compilalo`):**
+     - Creato il repository ufficiale su GitHub: https://github.com/Branff/compilalo.
+     - Effettuato il push completo del branch `main` collegato a `origin`.
+     - Configurato il server MCP di GitHub in `~/.gemini/config/mcp_config.json`.
 
 2. **Perché è cambiato:**
    - Risposta alle 7 richieste del cittadino: calcolo automatico CF e QoL, espansione massiva fac-simile, integrazione Claude SEO, Forum civico organico, informative legali/manifesto e predisposizione push GitHub.
