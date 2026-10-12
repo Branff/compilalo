@@ -8,9 +8,48 @@
 
 ---
 
-## Log delle Modifiche (Changelog)
+### [2026-10-12] — Suite Completa: Auto-CF, 32 Modelli Pubblico Dominio, Claude SEO & Forum Civico, Whitepaper & Manifesto, Git Repo
+1. **Cosa è cambiato:**
+   - **Calcolo Automatico Codice Fiscale & Smart QoL (`codiceFiscale.ts`, `comuni.ts`):**
+     - Il sistema non chiede mai più il codice fiscale come campo obbligatorio da digitare a mano.
+     - Viene calcolato automaticamente dai dati anagrafici (Nome, Cognome, Sesso, Data di Nascita, Comune con codice catastale Belfiore).
+     - Aggiunto toggle esplicito *"Preferisco inserirlo a mano"* / *"Torna al calcolo automatico"* in tutte le viste (`/`, `/compila`, `/vault`).
+     - Aggiunta decodifica inversa: se l'utente incolla un CF a 16 caratteri, il sistema deduce automaticamente sesso e data di nascita.
+     - Aggiunto autocompletamento in tempo reale per tutti i 107 capoluoghi e comuni d'Italia con estrazione istantanea di Sigla Provincia e CAP.
+   - **Espansione del Catalogo a 32 Modelli Legali Ufficiali (`src/lib/templates/catalog.ts`):**
+     - Nessuna violazione di copyright (L. 633/1941 art. 5 - testi normativi e formule ufficiali in pubblico dominio).
+     - 6 Categorie: Autocertificazioni DPR 445/2000 (artt. 46 e 47), Deleghe amministrative e postali, Disdette e recessi (Legge Bersani 40/2007, utenze, palestra, canone RAI), Multe e ricorsi CdS (art. 203, autovelox Cass. 10505/2024, decurtazione punti), Casa e affitti (L. 431/98 art. 3 c.6, art. 1577 c.c., restituzione cauzione), Diffide e reclami (art. 1454 c.c., Reg. CE 261/2004 volo aereo, GDPR art. 17).
+     - Ricerca istantanea dal vivo e filtri per categoria in `/compila`.
+   - **Integrazione Claude SEO Master Suite (`.agent/skills/claude-seo/SKILL.md`):**
+     - Installata la skill con architettura per Programmatic SEO, AEO/GEO e Schema markup.
+     - Creato `static/llms.txt` per motori di ricerca generativi (Perplexity, Claude, ChatGPT, Gemini).
+     - Creato `static/robots.txt` e strutturati i metadati JSON-LD `SoftwareApplication`, `FAQPage` e `HowTo`.
+   - **Forum Civico & Flusso di Traffico Organico (`src/routes/forum/+page.svelte`):**
+     - Sezione Q&A con 8+ discussioni burocratiche ad alto traffico organico (ricorso autovelox, decertificazione scuola, disdetta affitto per gravi motivi, delega poste, diffida 15 giorni).
+     - Ogni risposta include citazione della normativa ufficiale e pulsante 1-click CTA che rimanda direttamente al modulo precompilato su `/compila?id=...`.
+     - Struttura `FAQPage` schema.org conforme alle linee guida di Google.
+   - **Pagine Informative, Legali & Manifesto:**
+     - `/manifesto` (Manifesto del Cittadino Digitale, Privacy Radicale, sovranità dei dati ed etica cypherpunk).
+     - `/sicurezza` (Whitepaper Tecnico Zero-Knowledge: AES-GCM-256, PBKDF2 600.000 iterazioni, WebCrypto API, verifica F12 zero-network).
+     - `/privacy` (Informativa Privacy conforme GDPR Art. 25 Privacy by Design, cookie-free, zero database server).
+     - `/termini` (Condizioni d'uso, avvertenza penale art. 76 DPR 445/2000, esenzione copyright art. 5 L. 633/1941).
+     - Aggiornata la barra di navigazione e il footer di `src/routes/+layout.svelte` per collegare tutte le nuove sezioni.
+   - **Controllo di Qualità e Build:**
+     - `npm run check` completato con 0 errori e 0 warning.
+     - `npm run build` completato con generazione statica completa nella cartella `build/`.
+   - **Inizializzazione Git Repository:**
+     - Creato `.gitignore` completo.
+     - Inizializzato repository git locale con branch `main` e commit root `41d4b9f`.
 
-### [2026-10-12] — Coerenza Visiva Emil Kowalski & Sincronizzazione Universale "Zero Informazioni Chiese Due Volte"
+2. **Perché è cambiato:**
+   - Risposta alle 7 richieste del cittadino: calcolo automatico CF e QoL, espansione massiva fac-simile, integrazione Claude SEO, Forum civico organico, informative legali/manifesto e predisposizione push GitHub.
+
+3. **Come funziona il sistema ora:**
+   - COMPILALO è una piattaforma civic-tech completa: un utente può caricare qualsiasi PDF o scegliere tra 32 modelli legali gratuiti, i suoi dati vengono calcolati e sincronizzati in automatico senza mai chiedere il codice fiscale né memorizzarlo su un server, e il forum civico attrae traffico organico da Google e motori AI instradando i cittadini direttamente verso i moduli gratuiti.
+
+---
+
+
 1. **Cosa è cambiato:**
    - **Sincronizzazione Universale dei Dati e della Firma (`src/lib/stores/vault.svelte.ts`):**
      - Collegato lo store `vault.activeIdentity` e `vault.savedSignature` a tutte le viste dell'applicazione (`/`, `/compila`, `/vault`, `/scanner`).
