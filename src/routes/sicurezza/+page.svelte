@@ -5,6 +5,24 @@
 <svelte:head>
   <title>Architettura di Sicurezza & Crittografia Zero-Knowledge | COMPILALO</title>
   <meta name="description" content="Whitepaper tecnico sull'architettura crittografica di COMPILALO: WebCrypto API, cifratura AES-GCM-256, PBKDF2 a 600.000 iterazioni e memoria client-side." />
+  <link rel="canonical" href="https://compilalo.it/sicurezza" />
+  <meta property="og:title" content="Whitepaper Sicurezza & Crittografia Zero-Knowledge | COMPILALO" />
+  <meta property="og:description" content="Dimostrazione matematica e tecnica dell'architettura client-side di COMPILALO. Zero chiamate di rete con i tuoi dati personali." />
+  <meta property="og:url" content="https://compilalo.it/sicurezza" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Architettura di Sicurezza Zero-Knowledge & Elaborazione Locale",
+      "description": "Specifiche tecniche di cifratura AES-GCM-256, derivazione chiave PBKDF2 e rendering PDF client-side.",
+      "url": "https://compilalo.it/sicurezza",
+      "inLanguage": "it-IT",
+      "author": {
+        "@type": "Organization",
+        "name": "COMPILALO Security Research"
+      }
+    }
+  </script>
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-12 py-6">

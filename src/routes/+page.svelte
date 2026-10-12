@@ -280,6 +280,10 @@
 <svelte:head>
   <title>COMPILALO &mdash; Compila e Firma Documenti Online Gratis, Anonimo e Local-First</title>
   <meta name="description" content="Compila e firma gratuitamente qualsiasi documento, autocertificazione DPR 445/2000, delega o ricorso multa. 100% anonimo, zero registrazione, elaborazione locale nel browser." />
+  <link rel="canonical" href="https://compilalo.it/" />
+  <meta property="og:title" content="COMPILALO &mdash; Compilazione e Firma Documenti Online" />
+  <meta property="og:description" content="Trascina qualsiasi modulo in PDF. Lo compiliamo e firmiamo in automatico senza salvare dati su nessun server." />
+  <meta property="og:url" content="https://compilalo.it/" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -295,6 +299,31 @@
             "priceCurrency": "EUR"
           },
           "description": "PWA italiana gratuita e anonima per compilazione ed apposizione firma su documenti PDF e modelli legali della Pubblica Amministrazione."
+        },
+        {
+          "@type": "HowTo",
+          "name": "Come compilare e firmare un documento PDF online gratis con COMPILALO",
+          "description": "Procedura in 3 passaggi per compilare e firmare digitalmente qualsiasi modulo amministrativo o legale senza registrazione.",
+          "step": [
+            {
+              "@type": "HowToStep",
+              "position": 1,
+              "name": "Carica il Documento",
+              "text": "Trascina il file PDF nell'area di rilascio oppure seleziona uno dei 32 modelli gratuiti della Pubblica Amministrazione dal catalogo."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 2,
+              "name": "Compilazione Automatica dei Dati",
+              "text": "I dati anagrafici e il Codice Fiscale vengono calcolati e posizionati automaticamente all'interno dei campi del modulo."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 3,
+              "name": "Firma e Scarica",
+              "text": "Apponi la tua firma autografa con il dito o mouse ed esporta istantaneamente il documento PDF compilato e firmato."
+            }
+          ]
         },
         {
           "@type": "FAQPage",
@@ -313,6 +342,14 @@
               "acceptedAnswer": {
                 "@type": "Answer",
                 "text": "Nessuna registrazione, nessuna carta, nessuno SPID. Il servizio è libero, gratuito e utilizzabile all'istante."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Come viene calcolato il Codice Fiscale?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Il Codice Fiscale viene calcolato in tempo reale da un algoritmo matematico a partire da nome, cognome, sesso, data e comune di nascita (con codice catastale Belfiore), senza mai richiederne l'inserimento manuale forzato."
               }
             }
           ]

@@ -33,23 +33,68 @@
 <svelte:head>
   <title>{post.title} | Blog COMPILALO</title>
   <meta name="description" content={post.excerpt} />
+  <link rel="canonical" href="https://compilalo.it/blog/{post.slug}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="{post.title} | COMPILALO" />
+  <meta property="og:description" content={post.excerpt} />
+  <meta property="og:url" content="https://compilalo.it/blog/{post.slug}" />
+  <meta property="article:published_time" content={post.publishedAt} />
+  <meta property="article:section" content={post.category} />
+  <meta property="article:author" content={post.author.name} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={post.title} />
+  <meta name="twitter:description" content={post.excerpt} />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "BlogPosting",
-      "headline": {JSON.stringify(post.title)},
-      "description": {JSON.stringify(post.excerpt)},
-      "datePublished": {JSON.stringify(post.publishedAt)},
-      "author": {
-        "@type": "Person",
-        "name": {JSON.stringify(post.author.name)}
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "COMPILALO",
-        "url": "https://compilalo.it"
-      },
-      "keywords": {JSON.stringify(post.seoKeywords.join(', '))}
+      "@graph": [
+        {
+          "@type": "BlogPosting",
+          "@id": "https://compilalo.it/blog/" + {JSON.stringify(post.slug)} + "#article",
+          "headline": {JSON.stringify(post.title)},
+          "description": {JSON.stringify(post.excerpt)},
+          "datePublished": {JSON.stringify(post.publishedAt)},
+          "dateModified": {JSON.stringify(post.publishedAt)},
+          "mainEntityOfPage": "https://compilalo.it/blog/" + {JSON.stringify(post.slug)},
+          "inLanguage": "it-IT",
+          "articleSection": {JSON.stringify(post.category)},
+          "author": {
+            "@type": "Person",
+            "name": {JSON.stringify(post.author.name)},
+            "jobTitle": {JSON.stringify(post.author.role)}
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "COMPILALO",
+            "url": "https://compilalo.it",
+            "logo": "https://compilalo.it/favicon.svg"
+          },
+          "keywords": {JSON.stringify(post.seoKeywords.join(', '))}
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://compilalo.it"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Blog Civico",
+              "item": "https://compilalo.it/blog"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": {JSON.stringify(post.title)},
+              "item": "https://compilalo.it/blog/" + {JSON.stringify(post.slug)}
+            }
+          ]
+        }
+      ]
     }
   </script>
 </svelte:head>

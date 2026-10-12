@@ -1,0 +1,68 @@
+# COMPILALO — Enciclopedia e Riferimento Tecnico per Agenti AI e LLM
+
+> Questo file machine-readable contiene la documentazione approfondita, i riferimenti normativi e la descrizione di tutti i 32 modelli di documenti e moduli amministrativi gestiti da COMPILALO (https://compilalo.it).
+
+---
+
+## 1. Architettura e Principi Inviolabili
+- **Modello di Elaborazione:** 100% Client-Side. I documenti PDF e i dati anagrafici vengono manipolati esclusivamente nella memoria volatile (RAM) o protetta del browser dell'utente (WebCrypto API).
+- **Crittografia Locale:** AES-GCM a 256 bit con derivazione chiave PBKDF2 (HMAC-SHA-256, 600.000 iterazioni) e seed mnemonico BIP-39 a 12 parole.
+- **Privacy Radicale (Zero-Knowledge):** Nessun database utente, nessuna richiesta di email, nessun tracciamento di rete (GDPR Art. 25 Privacy by Design).
+- **Calcolo Codice Fiscale Deterministico:** Il sistema non richiede l'immissione forzata del codice fiscale, calcolandolo automaticamente attraverso le tabelle catastali ufficiali Belfiore dei comuni italiani.
+
+---
+
+## 2. Catalogo Completo dei 32 Modelli Legali & Amministrativi
+
+### Categoria: Autocertificazioni (D.P.R. 28 dicembre 2000, n. 445)
+1. **Dichiarazione Sostitutiva di Residenza (Art. 46):** Attesta la residenza anagrafica attuale del dichiarante. Valida per tutte le PA e gestori di pubblici servizi (esente da bollo ex L. 183/2011).
+2. **Dichiarazione Sostitutiva di Stato di Famiglia (Art. 46):** Dichiara la composizione anagrafica del nucleo familiare convivente presso la stessa residenza.
+3. **Dichiarazione Sostitutiva di Nascita (Art. 46):** Certifica data, luogo e comune di nascita del dichiarante o del figlio minore.
+4. **Dichiarazione di Godimento dei Diritti Politici (Art. 46):** Attesta l'iscrizione nelle liste elettorali del comune di residenza e l'assenza di cause di sospensione del diritto di voto.
+5. **Dichiarazione Sostitutiva del Titolo di Studio (Art. 46):** Attesta il conseguimento di diploma, laurea o specializzazione con indicazione dell'istituto, anno accademico e votazione.
+6. **Dichiarazione Situazione Reddituale ed Economica ISEE (Art. 46):** Dichiara reddito complessivo o fascia economica per agevolazioni, borse di studio e bandi comunali.
+7. **Dichiarazione di Esistenza in Vita (Art. 46):** Certifica che il soggetto è vivente per fini pensionistici, previdenziali o assicurativi.
+8. **Dichiarazione Sostitutiva di Morte (Art. 46):** Attesta il decesso di un congiunto con data e comune dell'evento, per disbrigo pratiche testamentarie o utenze.
+9. **Dichiarazione Sostitutiva di Atto Notorio Generica (Art. 47):** Formula universale per attestare stati, fatti e qualità personali a diretta conoscenza del dichiarante.
+10. **Atto Notorio Eredi e Successione Legittima (Art. 47):** Attesta la qualità di eredi legittimi di un de cuius, fondamentale per lo sblocco di conti correnti bancari e postali.
+11. **Dichiarazione Inizio Lavori di Edilizia Libera (Art. 47):** Attesta che gli interventi rientrano nel glossario dell'edilizia libera (D.M. 2 marzo 2018) senza necessità di CILA o SCIA.
+
+### Categoria: Deleghe
+12. **Delega Ritiro Documenti Pubblica Amministrazione:** Conferisce potere a un terzo maggiorenne per ritirare certificati, tessere sanitarie o atti presso uffici pubblici.
+13. **Delega Ritiro Raccomandata e Pacchi Postali:** Modello conforme alle condizioni di Poste Italiane per ritirare corrispondenza in giacenza con allegato documento d'identità (Art. 38 DPR 445/2000).
+14. **Delega Partecipazione Assemblea Condominiale:** Conferisce rappresentanza e diritto di voto all'assemblea di condominio ai sensi dell'art. 67 disp. att. c.c.
+15. **Delega Generica per Pratiche Amministrative:** Formula universale per rappresentanza in uffici, CAF, patronati e aziende private.
+
+### Categoria: Disdette & Recessi
+16. **Disdetta Contratto Telefonia e Fibra (Legge Bersani 40/2007):** Recesso anticipato senza penali ingiustificate né vincoli temporali per linee fisse e mobili.
+17. **Disdetta Fornitura Luce e Gas per Cambio Residenza:** Chiusura o disattivazione del contatore energetico con autolettura finale e codice POD/PDR.
+18. **Disdetta Abbonamento Palestra e Servizi Continuativi:** Recesso da contratti sportivi o servizi in abbonamento per scadenza o giusta causa.
+19. **Disdetta Polizza Assicurativa a Scadenza Naturale:** Comunicazione di non rinnovo per polizze infortuni, casa o vita con disdetta del tacito rinnovo.
+20. **Dichiarazione di Non Detenzione Canone RAI:** Dichiarazione sostitutiva Quadro A dell'Agenzia delle Entrate per abitazioni prive di apparecchi televisivi.
+
+### Categoria: Multe & Ricorsi Stradali
+21. **Ricorso al Prefetto ex Art. 203 Codice della Strada:** Impugnazione stragiudiziale gratuita via PEC per vizi di notifica, segnaletica o verbalizzazione.
+22. **Ricorso Autovelox per Mancata Omologazione Tecnica:** Fondato sull'ordinanza della Corte di Cassazione Civile Sez. II n. 10505/2024 (art. 142 comma 6 CdS).
+23. **Comunicazione Dati Conducente per Decurtazione Punti:** Modello ex art. 126-bis CdS per comunicare patente e generalità del trasgressore ed evitare la sanzione aggiuntiva ex comma 2.
+
+### Categoria: Casa & Locazioni
+24. **Disdetta Locazione Conduttore per Gravi Motivi (L. 431/98 Art. 3 c.6):** Lettera di recesso con preavviso di 6 mesi per motivi imprevedibili e sopravvenuti.
+25. **Richiesta Riparazioni Urgenti al Locatore (Art. 1577 C.C.):** Sollecito al proprietario per interventi straordinari di manutenzione dell'immobile locato.
+26. **Sollecito Restituzione Deposito Cauzionale con Interessi (L. 392/1978):** Costituzione in mora per il rimborso della caparra e degli interessi legali maturati ex art. 1284 c.c.
+
+### Categoria: Diffide & Reclami
+27. **Diffida ad Adempiere con Termine di 15 Giorni (Art. 1454 C.C.):** Intimazione formale con effetto di risoluzione automatica di diritto del contratto in caso di inadempimento.
+28. **Reclamo Ritardo o Cancellazione Volo Aereo (Regolamento CE 261/2004):** Richiesta di compensazione pecuniaria (€250-€600) per ritardi superiori a 3 ore o cancellazioni.
+29. **Contestazione Addebito Bancario o Carta Non Riconosciuto:** Disconoscimento di transazioni non autorizzate ai sensi del D.Lgs. 11/2010 (PSD2).
+30. **Richiesta Cancellazione Dati Personali - Diritto all'Oblio (GDPR Art. 17):** Intimazione formale al titolare del trattamento per la cancellazione immediata di dati personali.
+
+---
+
+## 3. Link Ufficiali
+- Sito principale: https://compilalo.it/
+- Compilatore e catalogo modelli: https://compilalo.it/compila
+- Blog e guide burocratiche: https://compilalo.it/blog
+- Cassaforte locale: https://compilalo.it/vault
+- Whitepaper tecnico di sicurezza: https://compilalo.it/sicurezza
+- Manifesto civico: https://compilalo.it/manifesto
+- Codice sorgente open source: https://github.com/Branff/compilalo

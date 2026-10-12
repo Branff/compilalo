@@ -5,6 +5,10 @@
 <svelte:head>
   <title>Termini e Condizioni di Servizio &mdash; Avvertenze Legali DPR 445/2000 | COMPILALO</title>
   <meta name="description" content="Condizioni generali di utilizzo del servizio COMPILALO e avvertenze legali penali relative alle dichiarazioni sostitutive di certificazione (D.P.R. 445/2000)." />
+  <link rel="canonical" href="https://compilalo.it/termini" />
+  <meta property="og:title" content="Termini di Servizio & Avvertenze DPR 445/2000 | COMPILALO" />
+  <meta property="og:description" content="Condizioni generali di gratuità, valore legale della firma e responsabilità penali per dichiarazioni mendaci ex art. 76 DPR 445/2000." />
+  <meta property="og:url" content="https://compilalo.it/termini" />
 </svelte:head>
 
 <div class="max-w-3xl mx-auto space-y-10 py-6">

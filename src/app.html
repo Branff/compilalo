@@ -2,15 +2,82 @@
 <html lang="it" class="h-full bg-[#F9F9F8] text-[#18181B] antialiased">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="COMPILALO — Compilazione documenti, deleghe, autocertificazioni e disdette 100% anonima, gratuita e salvata solo sul tuo dispositivo." />
-    <meta name="theme-color" content="#F9F9F8" />
-    <title>COMPILALO — Compilazione Documenti Anonima e Sicura</title>
-    <!-- Font Istituzionali / Editoriali -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- SEO Primario & Metadati -->
+    <title>COMPILALO &mdash; Compilazione e Firma Documenti Online Gratis, Anonimo e Local-First</title>
+    <meta name="description" content="Compila, firma e scarica gratuitamente qualsiasi documento, autocertificazione DPR 445/2000, delega o ricorso multa. 100% anonimo, zero registrazione, elaborazione nella memoria del tuo browser." />
+    <meta name="keywords" content="compilazione documenti online, autocertificazione dpr 445 2000, modulo delega poste, ricorso autovelox cassazione, disdetta affitto 6 mesi, firma pdf gratis, calcolo codice fiscale automatico" />
+    <meta name="author" content="COMPILALO Civic Protocol" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="theme-color" content="#18181B" />
+    
+    <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="COMPILALO" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:title" content="COMPILALO &mdash; Il Protocollo Civico per Compilare e Firmare Documenti" />
+    <meta property="og:description" content="Nessun account, zero cookie, zero server. Compila qualsiasi modulo della Pubblica Amministrazione o contratto in 10 secondi direttamente sul tuo dispositivo." />
+    <meta property="og:url" content="https://compilalo.it/" />
+    <meta property="og:image" content="https://compilalo.it/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="COMPILALO - Compila e Firma Documenti Online" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="COMPILALO &mdash; Compilazione e Firma Documenti Anonima" />
+    <meta name="twitter:description" content="100% gratuito, local-first e crittografato. Compila e firma documenti PDF nel browser senza inviare dati personali online." />
+    <meta name="twitter:image" content="https://compilalo.it/og-image.svg" />
+
+    <!-- Icons & Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://compilalo.it/" />
+
+    <!-- Font Istituzionali & Editoriali ad Alta Prestazione (Preconnect) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Schema.org Global Organization & WebSite JSON-LD -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://compilalo.it/#organization",
+            "name": "COMPILALO",
+            "url": "https://compilalo.it",
+            "logo": "https://compilalo.it/favicon.svg",
+            "description": "Protocollo civico italiano gratuito e open source per la compilazione, firma e certificazione di documenti della Pubblica Amministrazione nel browser.",
+            "knowsAbout": [
+              "D.P.R. 28 dicembre 2000 n. 445",
+              "Decertificazione amministrativa L. 183/2011",
+              "Codice della Strada Art. 203",
+              "Crittografia client-side AES-GCM-256",
+              "Privacy by Design GDPR Art. 25"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://compilalo.it/#website",
+            "url": "https://compilalo.it",
+            "name": "COMPILALO",
+            "publisher": {
+              "@id": "https://compilalo.it/#organization"
+            },
+            "inLanguage": "it-IT",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://compilalo.it/compila?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
+      }
+    </script>
+
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover" class="h-full flex flex-col font-sans selection:bg-[#1D4ED8] selection:text-white">

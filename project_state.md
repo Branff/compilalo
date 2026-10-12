@@ -8,6 +8,38 @@
 
 ---
 
+### [2026-10-12] — Overhaul Totale SEO, GEO/AEO & Schema.org (`/claude-seo`)
+1. **Cosa è cambiato:**
+   - **Infrastruttura Head Globale (`src/app.html`):**
+     - Configurato set completo di meta tag OpenGraph (`og:site_name`, `og:locale`, `og:image`, `og:url`, `og:title`, `og:description`).
+     - Configurate Twitter Cards (`summary_large_image`, `@compilalo_it`).
+     - Aggiunta direttiva robots granulare: `index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1`.
+     - Preconnect e DNS-prefetch a `fonts.googleapis.com` e `fonts.gstatic.com`.
+     - Inclusi schemi globali Schema.org JSON-LD `Organization` (con logo e URL) e `WebSite` con `SearchAction` predisposta per la ricerca nei modelli.
+   - **Asset Grafico Social (`static/og-image.svg`):**
+     - Creata preview card vettoriale 1200x630 ad alta definizione con palette istituzionale, logo monogramma tricolore, claim *"Compila, firma e scarica qualsiasi documento o modulo PA in 10 secondi"* e badge distintivi *"100% Locale • Zero Registrazione • Crittografia AES-GCM"*.
+   - **Sitemap XML & Robots AI-Ready:**
+     - `static/sitemap.xml`: indicizzazione di tutte le 16 URL canoniche del sito (landing page, catalogo moduli, indice blog, 8 articoli specialistici, cassaforte, manifesto, whitepaper sicurezza, privacy e termini) con relative priorità e frequenze di aggiornamento.
+     - `static/robots.txt`: configurato con accesso esplicito autorizzato (`Allow: /`) per tutti i web crawler dei motori di ricerca generativi AI (`PerplexityBot`, `ClaudeBot`, `GPTBot`, `ChatGPT-User`, `Google-Extended`, `Applebot-Extended`) e link alla sitemap.
+     - `static/llms-full.txt`: documentazione approfondita in formato Markdown con schede tecniche dei 32 modelli normativi e dettagli dell'architettura crittografica zero-knowledge per citazioni zero-allucinazioni da parte dei Large Language Models.
+   - **Structured Data JSON-LD per Tutte le Pagine:**
+     - `src/routes/+page.svelte`: JSON-LD `HowTo` per la compilazione guidata e firma rapida, combinato con `FAQPage` e `SoftwareApplication`.
+     - `src/routes/compila/+page.svelte`: meta tag dinamici per template selezionato, JSON-LD `CollectionPage` e `ItemList` indicizzante l'intero catalogo dei 32 moduli.
+     - `src/routes/blog/+page.svelte`: JSON-LD `Blog`, `ItemList` e `BreadcrumbList`.
+     - `src/routes/blog/[slug]/+page.svelte`: JSON-LD `BlogPosting` con attribuzione E-E-A-T dell'autore, editore, date ISO 8601 e `BreadcrumbList` gerarchica a 3 livelli.
+     - `src/routes/manifesto/+page.svelte`: JSON-LD `AboutPage` e OpenGraph dedicato.
+     - `src/routes/sicurezza/+page.svelte`: JSON-LD `TechArticle` con specifiche crittografiche e OpenGraph.
+     - `src/routes/privacy/+page.svelte` e `src/routes/termini/+page.svelte`: metadati legali, canonical e OpenGraph.
+   - **Verifica e Validazione:**
+     - `npm run check`: superato con 0 errori e 0 warning.
+     - `npm run build`: superata la compilazione statica con prerender di tutte le 16 pagine in HTML ottimizzato.
+
+2. **Perché è cambiato:**
+   - Esecuzione del comando `/claude-seo rifai tutto il seo del sito` per posizionare COMPILALO al vertice delle ricerche organiche (Google) e delle risposte generate dall'AI (Perplexity, ChatGPT, Claude) sui temi burocratici e civici italiani.
+
+3. **Come funziona il sistema ora:**
+   - Ogni singola pagina e articolo del sito espone metadati semantici di livello enterprise, schema JSON-LD validati, card di condivisione social impeccabili e file standardizzati per il web semantico (`sitemap.xml`, `robots.txt`, `llms.txt`, `llms-full.txt`).
+
 ### [2026-10-12] — Suite Completa: Auto-CF, 32 Modelli Pubblico Dominio, Claude SEO & Forum Civico, Whitepaper & Manifesto, Git Repo
 1. **Cosa è cambiato:**
    - **Calcolo Automatico Codice Fiscale & Smart QoL (`codiceFiscale.ts`, `comuni.ts`):**

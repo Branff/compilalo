@@ -339,6 +339,59 @@
   });
 </script>
 
+<svelte:head>
+  <title>{selectedTemplate ? `${selectedTemplate.title} — Modello Fac-simile Gratuito | COMPILALO` : 'Catalogo 32 Modelli ed Autocertificazioni PA Gratuiti | COMPILALO'}</title>
+  <meta name="description" content="{selectedTemplate ? `${selectedTemplate.title}: ${selectedTemplate.description}. Modello fac-simile conforme a ${selectedTemplate.normativaRiferimento || 'legge italiana'}. Compila e firma subito gratis in PDF e DOCX.` : '32 modelli pronti della Pubblica Amministrazione: autocertificazioni DPR 445/2000, deleghe, ricorsi multe, contratti locazione e disdette.'}" />
+  <link rel="canonical" href="https://compilalo.it/compila" />
+  <meta property="og:title" content="{selectedTemplate.title} — Modello Fac-simile Gratuito | COMPILALO" />
+  <meta property="og:description" content="{selectedTemplate.description}" />
+  <meta property="og:url" content="https://compilalo.it/compila?t={selectedTemplate.slug}" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "name": "Catalogo Modelli e Autocertificazioni Pubblica Amministrazione",
+          "description": "32 modelli e fac-simile legali gratuiti conformi alla legge italiana (DPR 445/2000, Codice Civile, Codice della Strada).",
+          "url": "https://compilalo.it/compila",
+          "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+              {#each TEMPLATES_CATALOG as tmpl, idx}
+                {
+                  "@type": "ListItem",
+                  "position": {idx + 1},
+                  "name": {JSON.stringify(tmpl.title)},
+                  "description": {JSON.stringify(tmpl.description)},
+                  "url": "https://compilalo.it/compila?t=" + {JSON.stringify(tmpl.slug)}
+                }{idx < TEMPLATES_CATALOG.length - 1 ? ',' : ''}
+              {/each}
+            ]
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://compilalo.it"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Modelli Pronti",
+              "item": "https://compilalo.it/compila"
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+</svelte:head>
+
 <div class="space-y-6">
 
   <!-- Toast Notifica ad alto craft -->

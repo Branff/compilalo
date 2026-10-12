@@ -5,6 +5,20 @@
 <svelte:head>
   <title>Il Manifesto Civico di COMPILALO &mdash; Privacy Radicale e Democrazia Burocratica</title>
   <meta name="description" content="Il manifesto filosofico di COMPILALO: perché la burocrazia deve essere accessibile, gratuita e priva di sorveglianza digitale." />
+  <link rel="canonical" href="https://compilalo.it/manifesto" />
+  <meta property="og:title" content="Il Manifesto Civico di COMPILALO" />
+  <meta property="og:description" content="La burocrazia appartiene ai cittadini, non ai server. Perché l'unico modo per proteggere i tuoi dati è non possederli affatto." />
+  <meta property="og:url" content="https://compilalo.it/manifesto" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "Il Manifesto Civico di COMPILALO",
+      "description": "Principi fondativi di sovranità digitale, crittografia client-side e burocrazia gratuita per i cittadini.",
+      "url": "https://compilalo.it/manifesto",
+      "inLanguage": "it-IT"
+    }
+  </script>
 </svelte:head>
 
 <div class="max-w-3xl mx-auto space-y-12 py-6">

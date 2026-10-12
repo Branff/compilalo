@@ -290,6 +290,15 @@
   });
 </script>
 
+<svelte:head>
+  <title>La Mia Cassaforte Crittografica &mdash; Anagrafica Locale E2EE | COMPILALO</title>
+  <meta name="description" content="Salva e gestisci i tuoi dati anagrafici e la tua firma in locale sul tuo dispositivo con crittografia AES-GCM-256 e chiave BIP-39 a 12 parole. Zero server, zero tracciamento." />
+  <link rel="canonical" href="https://compilalo.it/vault" />
+  <meta property="og:title" content="La Mia Cassaforte Crittografica | COMPILALO" />
+  <meta property="og:description" content="Anagrafica locale protetta da crittografia a livello bancario sul tuo dispositivo. I tuoi dati non viaggiano mai su internet." />
+  <meta property="og:url" content="https://compilalo.it/vault" />
+</svelte:head>
+
 <div class="max-w-4xl mx-auto space-y-8">
 
   <!-- Toast Notifica ad alto craft -->

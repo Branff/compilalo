@@ -49,17 +49,43 @@
 <svelte:head>
   <title>Blog Civico & Guide Burocratiche &mdash; Risolvi Pratiche PA Senza Errori | COMPILALO</title>
   <meta name="description" content="Articoli pratici, guide legali e approfondimenti normativi su autocertificazioni DPR 445/2000, ricorsi multe, contratti di affitto e disdette. 100% gratuito e aggiornato." />
+  <link rel="canonical" href="https://compilalo.it/blog" />
+  <meta property="og:title" content="Blog Civico & Guide Burocratiche | COMPILALO" />
+  <meta property="og:description" content="Approfondimenti normativi, guide pratiche ed esenzioni legali della Pubblica Amministrazione con fac-simile gratuiti pronti da firmare." />
+  <meta property="og:url" content="https://compilalo.it/blog" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Blog",
-      "name": "Blog Civico di COMPILALO",
-      "description": "Guide legali, burocratiche e amministrative per cittadini italiani con fac-simile gratuiti.",
-      "url": "https://compilalo.it/blog",
-      "publisher": {
-        "@type": "Organization",
-        "name": "COMPILALO"
-      }
+      "@graph": [
+        {
+          "@type": "Blog",
+          "name": "Blog Civico di COMPILALO",
+          "description": "Guide legali, burocratiche e amministrative per cittadini italiani con fac-simile gratuiti.",
+          "url": "https://compilalo.it/blog",
+          "publisher": {
+            "@type": "Organization",
+            "name": "COMPILALO",
+            "url": "https://compilalo.it"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://compilalo.it"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Blog Civico",
+              "item": "https://compilalo.it/blog"
+            }
+          ]
+        }
+      ]
     }
   </script>
 </svelte:head>

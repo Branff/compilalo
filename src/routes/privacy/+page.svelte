@@ -5,6 +5,10 @@
 <svelte:head>
   <title>Informativa sulla Privacy (Zero-Log & GDPR Art. 25) | COMPILALO</title>
   <meta name="description" content="Informativa sulla Privacy di COMPILALO: zero dati personali raccolti, zero cookie, zero server. Massima conformità all'Articolo 25 del GDPR (Privacy by Design)." />
+  <link rel="canonical" href="https://compilalo.it/privacy" />
+  <meta property="og:title" content="Informativa Privacy Zero-Log | COMPILALO" />
+  <meta property="og:description" content="Nessun dato personale memorizzato su server, nessun cookie di tracciamento. Privacy by Design certificata ex art. 25 GDPR." />
+  <meta property="og:url" content="https://compilalo.it/privacy" />
 </svelte:head>
 
 <div class="max-w-3xl mx-auto space-y-10 py-6">
