@@ -24,7 +24,11 @@
     Calculator,
     Edit3,
     MapPin,
-    ArrowRight
+    ArrowRight,
+    Copy,
+    X,
+    FileKey,
+    Shield
   } from 'lucide-svelte';
   import SignaturePad from 'signature_pad';
 
@@ -83,7 +87,6 @@
   onMount(async () => {
     await vault.checkStoredVault();
 
-    // Se il vault è sbloccato, carica il profilo attivo
     if (vault.isUnlocked && vault.activeProfile) {
       editingProfile = { ...vault.activeProfile };
     } else if (vault.hasIdentityData) {
@@ -111,76 +114,81 @@
   function tryAutoCalculateCF(target: UserProfile) {
     if (manualCfMode) return;
     if (target.nome && target.cognome && target.dataNascita && target.luogoNascita) {
-      const res = autoCalculateCodiceFiscale({
+      const calculated = autoCalculateCodiceFiscale({
         nome: target.nome,
         cognome: target.cognome,
-        sesso: (target.sesso || 'M') as 'M' | 'F',
+        sesso: target.sesso === 'A' ? 'M' : target.sesso,
         dataNascita: target.dataNascita,
         luogoNascita: target.luogoNascita
       });
-      if (res) {
-        target.codiceFiscale = res;
+      if (calculated) {
+        target.codiceFiscale = calculated;
       }
     }
   }
 
-  function handleManualCfChange(target: UserProfile, value: string) {
-    target.codiceFiscale = value.toUpperCase();
+  function handleManualCfChange(target: UserProfile, val: string) {
+    target.codiceFiscale = val.toUpperCase();
     if (target.codiceFiscale.length === 16) {
       const decoded = decodeCodiceFiscale(target.codiceFiscale);
-      if (decoded.sesso) {
-        target.sesso = decoded.sesso;
-        showToast('Sesso estratto dal Codice Fiscale!');
-      }
+      if (decoded.sesso) target.sesso = decoded.sesso;
     }
   }
 
   function handleComuneSearch(target: 'new' | 'edit', field: 'luogoNascita' | 'comuneResidenza', query: string) {
     if (query.trim().length >= 2) {
-      const results = findComune(query);
-      if (results.length > 0) {
-        comuneSuggestions = { target, field, list: results.slice(0, 5) };
+      const hits = findComune(query);
+      if (hits.length > 0) {
+        comuneSuggestions = { target, field, list: hits.slice(0, 5) };
         return;
       }
     }
     comuneSuggestions = null;
   }
 
-  function selectComune(item: ComuneItem) {
+  function selectComune(comune: ComuneItem) {
     if (!comuneSuggestions) return;
-    const prof = comuneSuggestions.target === 'new' ? newProfile : editingProfile;
-    if (!prof) return;
+    const { target, field } = comuneSuggestions;
+    const dest = target === 'new' ? newProfile : editingProfile;
+    if (!dest) return;
 
-    if (comuneSuggestions.field === 'luogoNascita') {
-      prof.luogoNascita = item.nome;
-      prof.provinciaNascita = item.provincia;
-      tryAutoCalculateCF(prof);
-    } else if (comuneSuggestions.field === 'comuneResidenza') {
-      prof.comuneResidenza = item.nome;
-      prof.provinciaResidenza = item.provincia;
-      prof.capResidenza = item.cap;
+    if (field === 'luogoNascita') {
+      dest.luogoNascita = comune.nome;
+      dest.provinciaNascita = comune.provincia;
+      tryAutoCalculateCF(dest);
+    } else {
+      dest.comuneResidenza = comune.nome;
+      dest.provinciaResidenza = comune.provincia;
+      dest.capResidenza = comune.cap;
     }
     comuneSuggestions = null;
   }
 
   async function handleUnlock() {
+    if (!passphraseInput.trim()) return;
     isUnlocking = true;
     unlockError = '';
-    const success = await vault.unlock(passphraseInput);
-    if (success) {
-      editingProfile = vault.activeProfile ? { ...vault.activeProfile } : null;
-      passphraseInput = '';
-      showToast('Cassaforte sbloccata con successo!');
-    } else {
-      unlockError = vault.errorMessage || 'Frase o chiave non corretta.';
+
+    try {
+      const success = await vault.unlock(passphraseInput.trim());
+      if (success) {
+        passphraseInput = '';
+        if (vault.activeProfile) {
+          editingProfile = { ...vault.activeProfile };
+        }
+        showToast('Cassaforte sbloccata con successo!');
+      } else {
+        unlockError = 'La frase segreta inserita non corrisponde. Riprova.';
+      }
+    } catch (err: any) {
+      unlockError = err?.message || 'Errore durante la decifratura.';
+    } finally {
+      isUnlocking = false;
     }
-    isUnlocking = false;
   }
 
   function startCreateVault() {
     generatedMnemonicWords = generateMnemonic();
-    passphraseInput = generatedMnemonicWords;
-    populateNewProfileFromActiveIdentity();
     isCreatingVault = true;
   }
 
@@ -189,72 +197,86 @@
       showToast('Inserisci almeno Nome e Cognome.');
       return;
     }
+
     tryAutoCalculateCF(newProfile);
-    await vault.createNewVault(newProfile, passphraseInput);
-    editingProfile = { ...newProfile };
-    isCreatingVault = false;
-    showToast('Cassaforte cifrata creata con successo in memoria locale!');
+
+    try {
+      await vault.createNewVault(newProfile, generatedMnemonicWords);
+      isCreatingVault = false;
+      editingProfile = { ...newProfile };
+      showToast('Cassaforte cifrata creata e memorizzata in locale!');
+    } catch (err) {
+      console.error(err);
+      showToast('Errore durante la creazione della cassaforte.');
+    }
+  }
+
+  async function handleSaveActiveIdentityDirectly() {
+    if (!newProfile.nome || !newProfile.cognome) {
+      showToast('Inserisci almeno Nome e Cognome.');
+      return;
+    }
+
+    tryAutoCalculateCF(newProfile);
+
+    await vault.updateActiveIdentity({
+      nome: newProfile.nome,
+      cognome: newProfile.cognome,
+      sesso: newProfile.sesso,
+      dataNascita: newProfile.dataNascita,
+      luogoNascita: newProfile.luogoNascita,
+      provinciaNascita: newProfile.provinciaNascita,
+      codiceFiscale: newProfile.codiceFiscale,
+      comuneResidenza: newProfile.comuneResidenza,
+      provinciaResidenza: newProfile.provinciaResidenza,
+      capResidenza: newProfile.capResidenza,
+      indirizzoResidenza: newProfile.indirizzoResidenza
+    });
+
+    showToast('Dati salvati in locale! Pronti per qualsiasi modulo.');
   }
 
   async function handleSaveProfileChanges() {
     if (!editingProfile) return;
     tryAutoCalculateCF(editingProfile);
-    const index = vault.profiles.findIndex(p => p.id === editingProfile?.id);
-    if (index >= 0) {
-      vault.profiles[index] = { ...editingProfile };
+    const idx = vault.profiles.findIndex(p => p.id === editingProfile?.id);
+    if (idx >= 0) {
+      vault.profiles[idx] = { ...editingProfile };
       await vault.saveUpdatedProfiles();
-      await vault.updateActiveIdentity(editingProfile);
-      showToast('Profilo aggiornato e ricifrato localmente!');
     }
-  }
-
-  async function handleSaveActiveIdentityDirectly() {
-    tryAutoCalculateCF(newProfile);
-    await vault.updateActiveIdentity({
-      nome: newProfile.nome,
-      cognome: newProfile.cognome,
-      codiceFiscale: newProfile.codiceFiscale,
-      dataNascita: newProfile.dataNascita,
-      luogoNascita: newProfile.luogoNascita,
-      comuneResidenza: newProfile.comuneResidenza,
-      indirizzoResidenza: newProfile.indirizzoResidenza,
-      capResidenza: newProfile.capResidenza,
-      sesso: newProfile.sesso
-    });
-    showToast('Dati personali aggiornati nel browser!');
+    await vault.updateActiveIdentity(editingProfile);
+    showToast('Profilo aggiornato con successo');
   }
 
   function addNewFamilyProfile() {
-    const id = `profile_${Date.now()}`;
-    const fresh: UserProfile = {
-      id,
-      label: 'Nuovo Familiare (es. Figlio / Coniuge)',
+    const newId = `profile_${Date.now()}`;
+    const p: UserProfile = {
+      id: newId,
+      label: 'Nuovo Familiare',
       isDefault: false,
       nome: '',
-      cognome: editingProfile?.cognome || '',
+      cognome: '',
       sesso: 'M',
       dataNascita: '',
       luogoNascita: '',
       provinciaNascita: '',
       codiceFiscale: '',
-      comuneResidenza: editingProfile?.comuneResidenza || '',
-      provinciaResidenza: editingProfile?.provinciaResidenza || '',
-      capResidenza: editingProfile?.capResidenza || '',
-      indirizzoResidenza: editingProfile?.indirizzoResidenza || ''
+      comuneResidenza: '',
+      provinciaResidenza: '',
+      capResidenza: '',
+      indirizzoResidenza: ''
     };
-    vault.profiles = [...vault.profiles, fresh];
-    editingProfile = fresh;
-    vault.activeProfileId = id;
-    showToast('Nuovo familiare aggiunto. Compila i dettagli.');
+    vault.addProfile(p);
+    editingProfile = { ...p };
+    showToast('Nuovo profilo familiare creato!');
   }
 
-  // Gestione firma
   function openSignaturePad() {
     showSignatureModal = true;
     setTimeout(() => {
       if (canvasEl) {
         signaturePadInstance = new SignaturePad(canvasEl, {
-          penColor: '#0F172A',
+          penColor: '#09090B',
           backgroundColor: 'rgba(255, 255, 255, 0)'
         });
         const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -283,6 +305,11 @@
     showToast('Firma rimossa');
   }
 
+  function copyMnemonicToClipboard() {
+    navigator.clipboard.writeText(generatedMnemonicWords);
+    showToast('12 parole copiate negli appunti!');
+  }
+
   let cfCheck = $derived.by(() => {
     const cf = isCreatingVault ? newProfile.codiceFiscale : (editingProfile?.codiceFiscale || newProfile.codiceFiscale);
     if (!cf || cf.length < 16) return null;
@@ -299,37 +326,39 @@
   <meta property="og:url" content="https://compilalo.it/vault" />
 </svelte:head>
 
-<div class="max-w-4xl mx-auto space-y-8">
+<div class="max-w-4xl mx-auto space-y-8 py-2">
 
-  <!-- Toast Notifica ad alto craft -->
+  <!-- Toast Notifica ad alto craft (Emil Kowalski style: 180ms ease-out) -->
   {#if notificationToast}
-    <div class="fixed top-20 right-6 z-50 bg-[#18181B] text-white px-4 py-2.5 rounded-lg shadow-lg border border-[#27272A] text-xs font-medium flex items-center space-x-2 craft-modal">
-      <Check class="w-4 h-4 text-[#10B981]" />
+    <div class="fixed top-20 right-6 z-50 bg-[#09090B] text-white px-4 py-2.5 rounded-lg shadow-xl border border-zinc-800 text-xs font-medium flex items-center space-x-2.5 craft-modal">
+      <Check class="w-4 h-4 text-emerald-400 shrink-0" />
       <span>{notificationToast}</span>
     </div>
   {/if}
   
-  <!-- Intestazione Vault -->
-  <div class="bg-white border border-[#E4E4E7] rounded-lg p-6">
+  <!-- Header Hardware-Grade Vault (Raycast / 1Password style) -->
+  <div class="craft-card rounded-2xl p-6 sm:p-7 border border-zinc-200/90 shadow-sm">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <div class="flex items-center space-x-2">
-          <KeyRound class="w-5 h-5 text-[#1D4ED8]" />
-          <h1 class="font-serif text-2xl font-bold tracking-tight text-[#18181B]">
-            La Mia Cassaforte Anonima
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/60 text-[#2563EB] flex items-center justify-center">
+            <KeyRound class="w-4 h-4" />
+          </div>
+          <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#09090B]">
+            Cassaforte Crittografica Locale
           </h1>
         </div>
-        <p class="text-xs text-[#52525B] mt-1">
-          I tuoi dati rimangono memorizzati <strong class="text-[#18181B]">esclusivamente nel tuo browser</strong> con crittografia <strong class="text-[#18181B]">AES-GCM-256</strong>. Nessun cookie, nessun tracciamento, nessun server esterno.
+        <p class="text-xs sm:text-sm text-zinc-600 mt-1.5 leading-relaxed">
+          I tuoi dati rimangono memorizzati <strong class="text-[#09090B]">esclusivamente nel tuo browser</strong> con cifratura hardware <strong class="text-[#09090B]">AES-GCM-256</strong>. Nessun server, nessun cookie, zero telemetria.
         </p>
       </div>
 
       {#if vault.isUnlocked}
         <button
           onclick={() => { vault.lock(); editingProfile = null; showToast('Cassaforte chiusa'); }}
-          class="px-3.5 py-2 text-xs font-medium text-[#71717A] hover:text-[#18181B] border border-[#E4E4E7] rounded flex items-center space-x-1.5 craft-transition craft-press self-start sm:self-auto"
+          class="px-4 py-2 text-xs font-semibold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 rounded-xl flex items-center space-x-2 craft-transition craft-press self-start sm:self-auto shrink-0"
         >
-          <Lock class="w-3.5 h-3.5" />
+          <Lock class="w-3.5 h-3.5 text-zinc-600" />
           <span>Blocca Cassaforte</span>
         </button>
       {/if}
@@ -338,36 +367,36 @@
 
   <!-- STATO 1: VAULT NON BLOCCATO MA NON ANCORA CIFRATO O BLOCCATO -->
   {#if !vault.isUnlocked && !isCreatingVault}
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
       <!-- Sezione Sinistra: Sblocco o Configurazione Identità -->
-      <div class="md:col-span-7 bg-white border border-[#E4E4E7] rounded-lg p-6 space-y-6">
+      <div class="md:col-span-7 craft-card rounded-2xl p-6 sm:p-7 space-y-6 border border-zinc-200/90 shadow-sm">
 
         {#if vault.hasStoredVault}
           <!-- Esiste un Vault Cifrato salvato in LocalStorage: Sblocco -->
           <div class="space-y-4">
-            <div class="flex items-center space-x-2 text-[#18181B]">
-              <Lock class="w-5 h-5 text-[#D97706]" />
-              <h2 class="font-serif text-lg font-bold">Cassaforte Cifrata Rilevata</h2>
+            <div class="flex items-center space-x-2.5 text-[#09090B]">
+              <Lock class="w-5 h-5 text-amber-600" />
+              <h2 class="font-serif text-xl font-bold">Cassaforte Cifrata Rilevata</h2>
             </div>
-            <p class="text-xs text-[#52525B]">
-              Inserisci la tua frase di sblocco (12 parole) o la chiave crittografica per decifrare i tuoi profili salvati.
+            <p class="text-xs text-zinc-600 leading-relaxed">
+              Inserisci la tua frase di sblocco segreta a 12 parole per decifrare i tuoi profili personali salvati.
             </p>
 
             <div class="space-y-3 pt-2">
-              <label for="passphrase_input" class="block text-xs font-medium text-[#18181B]">
-                Frase segreta di recupero o chiave
+              <label for="passphrase_input" class="block text-xs font-semibold text-zinc-900">
+                Frase segreta (12 parole) o chiave crittografica
               </label>
               <textarea
                 id="passphrase_input"
                 bind:value={passphraseInput}
                 rows={3}
                 placeholder="es. mela stella luna oceano vento..."
-                class="w-full text-xs font-mono p-3 border border-[#E4E4E7] rounded craft-input"
+                class="w-full text-xs font-mono p-3 bg-zinc-50 border border-zinc-300 rounded-xl craft-input leading-relaxed"
               ></textarea>
 
               {#if unlockError}
-                <div class="text-xs text-[#DC2626] flex items-center space-x-1">
+                <div class="text-xs text-red-600 flex items-center space-x-1.5 p-2 rounded-lg bg-red-50 border border-red-200">
                   <AlertCircle class="w-4 h-4 shrink-0" />
                   <span>{unlockError}</span>
                 </div>
@@ -376,10 +405,10 @@
               <button
                 onclick={handleUnlock}
                 disabled={isUnlocking || !passphraseInput}
-                class="w-full py-2.5 bg-[#18181B] text-white rounded text-xs font-semibold hover:bg-[#1D4ED8] craft-transition craft-press disabled:opacity-50 flex items-center justify-center space-x-1.5"
+                class="w-full py-3 bg-[#09090B] text-white rounded-xl text-xs font-bold hover:bg-[#2563EB] craft-transition craft-press disabled:opacity-50 flex items-center justify-center space-x-2 shadow-sm"
               >
                 <Unlock class="w-4 h-4" />
-                <span>{isUnlocking ? 'Decifratura in corso...' : 'Sblocca Cassaforte'}</span>
+                <span>{isUnlocking ? 'Decifratura in corso...' : 'Sblocca la Mia Cassaforte'}</span>
               </button>
             </div>
           </div>
@@ -387,20 +416,20 @@
         {:else}
           <!-- Nessun Vault Cifrato ancora: Mostra l'identità attiva (con auto-calcolo CF) -->
           <div class="space-y-4">
-            <div class="flex items-center justify-between border-b border-[#E4E4E7] pb-3">
+            <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div>
-                <h2 class="font-serif text-lg font-bold text-[#18181B]">La Tua Anagrafica sul Dispositivo</h2>
-                <p class="text-xs text-[#71717A]">
+                <h2 class="font-serif text-xl font-bold text-[#09090B]">La Tua Anagrafica sul Dispositivo</h2>
+                <p class="text-xs text-zinc-500 mt-0.5">
                   {#if vault.hasIdentityData}
-                    Dati già pronti e sincronizzati con i moduli caricati.
+                    Dati già pronti e sincronizzati con tutti i moduli del sito.
                   {:else}
-                    Inserisci i tuoi dati qui per averli sempre pronti in ogni documento.
+                    Inserisci i tuoi dati qui per averli sempre pronti all'uso.
                   {/if}
                 </p>
               </div>
 
               {#if vault.hasIdentityData}
-                <span class="px-2.5 py-1 bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0] rounded text-[11px] font-mono font-bold">
+                <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-mono font-bold">
                   ATTIVO
                 </span>
               {/if}
@@ -409,35 +438,35 @@
             <!-- Modulo rapido di modifica identità con Auto-CF -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div>
-                <label for="id_nome" class="block text-[11px] font-medium text-[#52525B] mb-0.5">Nome</label>
+                <label for="id_nome" class="block text-xs font-medium text-zinc-700 mb-1">Nome</label>
                 <input
                   id="id_nome"
                   type="text"
                   bind:value={newProfile.nome}
                   oninput={() => tryAutoCalculateCF(newProfile)}
                   placeholder="Mario"
-                  class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                  class="w-full text-xs border border-zinc-300 rounded-lg p-2.5 craft-input"
                 />
               </div>
               <div>
-                <label for="id_cognome" class="block text-[11px] font-medium text-[#52525B] mb-0.5">Cognome</label>
+                <label for="id_cognome" class="block text-xs font-medium text-zinc-700 mb-1">Cognome</label>
                 <input
                   id="id_cognome"
                   type="text"
                   bind:value={newProfile.cognome}
                   oninput={() => tryAutoCalculateCF(newProfile)}
                   placeholder="Rossi"
-                  class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                  class="w-full text-xs border border-zinc-300 rounded-lg p-2.5 craft-input"
                 />
               </div>
 
               <div>
-                <label for="id_sesso" class="block text-[11px] font-medium text-[#52525B] mb-0.5">Sesso</label>
+                <label for="id_sesso" class="block text-xs font-medium text-zinc-700 mb-1">Sesso</label>
                 <select
                   id="id_sesso"
                   bind:value={newProfile.sesso}
                   onchange={() => tryAutoCalculateCF(newProfile)}
-                  class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                  class="w-full text-xs border border-zinc-300 rounded-lg p-2.5 craft-input"
                 >
                   <option value="M">Maschile (M)</option>
                   <option value="F">Femminile (F)</option>
@@ -446,18 +475,18 @@
               </div>
 
               <div>
-                <label for="id_dataNascita" class="block text-[11px] font-medium text-[#52525B] mb-0.5">Data di Nascita</label>
+                <label for="id_dataNascita" class="block text-xs font-medium text-zinc-700 mb-1">Data di Nascita</label>
                 <input
                   id="id_dataNascita"
                   type="date"
                   bind:value={newProfile.dataNascita}
                   onchange={() => tryAutoCalculateCF(newProfile)}
-                  class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                  class="w-full text-xs border border-zinc-300 rounded-lg p-2.5 craft-input"
                 />
               </div>
 
               <div class="relative">
-                <label for="id_luogoNascita" class="block text-[11px] font-medium text-[#52525B] mb-0.5">Comune di Nascita</label>
+                <label for="id_luogoNascita" class="block text-xs font-medium text-zinc-700 mb-1">Comune di Nascita</label>
                 <input
                   id="id_luogoNascita"
                   type="text"
@@ -467,18 +496,18 @@
                     tryAutoCalculateCF(newProfile);
                   }}
                   placeholder="es. Roma o Milano"
-                  class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                  class="w-full text-xs border border-zinc-300 rounded-lg p-2.5 craft-input"
                 />
                 {#if comuneSuggestions && comuneSuggestions.target === 'new' && comuneSuggestions.field === 'luogoNascita'}
-                  <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-[#E4E4E7] rounded-lg shadow-lg z-20 overflow-hidden">
+                  <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl z-20 overflow-hidden craft-modal">
                     {#each comuneSuggestions.list as c}
                       <button
                         type="button"
                         onclick={() => selectComune(c)}
-                        class="w-full text-left px-3 py-2 text-xs hover:bg-[#F9F9F8] flex items-center justify-between border-b last:border-b-0 border-[#F2F1ED]"
+                        class="w-full text-left px-3.5 py-2 text-xs hover:bg-zinc-50 flex items-center justify-between border-b last:border-b-0 border-zinc-100"
                       >
-                        <span class="font-medium text-[#18181B]">{c.nome}</span>
-                        <span class="text-[10px] font-mono text-[#71717A]">{c.provincia} &middot; {c.cap}</span>
+                        <span class="font-medium text-zinc-900">{c.nome}</span>
+                        <span class="text-[10px] font-mono text-zinc-500">({c.provincia})</span>
                       </button>
                     {/each}
                   </div>
@@ -486,25 +515,25 @@
               </div>
 
               <div class="relative">
-                <label for="id_comune" class="block text-[11px] font-medium text-[#52525B] mb-0.5">Comune di Residenza</label>
+                <label for="id_comune" class="block text-xs font-medium text-zinc-700 mb-1">Comune di Residenza</label>
                 <input
                   id="id_comune"
                   type="text"
                   bind:value={newProfile.comuneResidenza}
                   oninput={(e) => handleComuneSearch('new', 'comuneResidenza', (e.target as HTMLInputElement).value)}
                   placeholder="es. Firenze o Torino"
-                  class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                  class="w-full text-xs border border-zinc-300 rounded-lg p-2.5 craft-input"
                 />
                 {#if comuneSuggestions && comuneSuggestions.target === 'new' && comuneSuggestions.field === 'comuneResidenza'}
-                  <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-[#E4E4E7] rounded-lg shadow-lg z-20 overflow-hidden">
+                  <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl z-20 overflow-hidden craft-modal">
                     {#each comuneSuggestions.list as c}
                       <button
                         type="button"
                         onclick={() => selectComune(c)}
-                        class="w-full text-left px-3 py-2 text-xs hover:bg-[#F9F9F8] flex items-center justify-between border-b last:border-b-0 border-[#F2F1ED]"
+                        class="w-full text-left px-3.5 py-2 text-xs hover:bg-zinc-50 flex items-center justify-between border-b last:border-b-0 border-zinc-100"
                       >
-                        <span class="font-medium text-[#18181B]">{c.nome}</span>
-                        <span class="text-[10px] font-mono text-[#71717A]">{c.provincia} &middot; {c.cap}</span>
+                        <span class="font-medium text-zinc-900">{c.nome}</span>
+                        <span class="text-[10px] font-mono text-zinc-500">({c.provincia})</span>
                       </button>
                     {/each}
                   </div>
@@ -512,19 +541,19 @@
               </div>
 
               <div class="sm:col-span-2">
-                <label for="id_indirizzo" class="block text-[11px] font-medium text-[#52525B] mb-0.5">Indirizzo (Via e Civico)</label>
-                <input id="id_indirizzo" type="text" bind:value={newProfile.indirizzoResidenza} placeholder="Via Nazionale 1" class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input" />
+                <label for="id_indirizzo" class="block text-xs font-medium text-zinc-700 mb-1">Indirizzo (Via e Civico)</label>
+                <input id="id_indirizzo" type="text" bind:value={newProfile.indirizzoResidenza} placeholder="Via Nazionale 1" class="w-full text-xs border border-zinc-300 rounded-lg p-2.5 craft-input" />
               </div>
 
               <!-- SEZIONE CODICE FISCALE: INTELLIGENTE CON AUTO-CALCOLO E OVERRIDE -->
-              <div class="sm:col-span-2 pt-2 border-t border-[#E4E4E7] space-y-2">
+              <div class="sm:col-span-2 pt-3 border-t border-zinc-200 space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-bold text-[#18181B] flex items-center space-x-1.5">
-                    <Calculator class="w-3.5 h-3.5 text-[#1D4ED8]" />
+                  <span class="text-xs font-bold text-zinc-900 flex items-center space-x-1.5">
+                    <Calculator class="w-3.5 h-3.5 text-[#2563EB]" />
                     <span>Codice Fiscale</span>
                     {#if !manualCfMode && newProfile.codiceFiscale}
-                      <span class="ml-1 text-[10px] font-mono font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded border border-[#A7F3D0]">
-                        CALCOLATO AUTOMATICAMENTE
+                      <span class="ml-1 text-[10px] font-mono font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        CALCOLATO
                       </span>
                     {/if}
                   </span>
@@ -532,10 +561,10 @@
                   <button
                     type="button"
                     onclick={() => manualCfMode = !manualCfMode}
-                    class="text-[11px] text-[#1D4ED8] hover:underline flex items-center space-x-1"
+                    class="text-[11px] text-[#2563EB] hover:underline flex items-center space-x-1"
                   >
                     <Edit3 class="w-3 h-3" />
-                    <span>{manualCfMode ? 'Torna al calcolo automatico' : 'Preferisco inserirlo a mano'}</span>
+                    <span>{manualCfMode ? 'Torna al calcolo automatico' : 'Modifica a mano'}</span>
                   </button>
                 </div>
 
@@ -546,18 +575,18 @@
                     value={newProfile.codiceFiscale}
                     oninput={(e) => handleManualCfChange(newProfile, (e.target as HTMLInputElement).value)}
                     placeholder="RSSMRA80A01H501U"
-                    class="w-full text-xs border border-[#E4E4E7] rounded p-2 font-mono uppercase craft-input"
+                    class="w-full text-xs border border-zinc-300 rounded-lg p-2.5 font-mono uppercase craft-input"
                   />
-                  <p class="text-[11px] text-[#71717A]">
-                    Incolla o digita il codice fiscale a 16 caratteri. Estrarremo sesso e data se vuoti.
+                  <p class="text-[11px] text-zinc-500">
+                    Digita il codice fiscale a 16 caratteri. Verranno estratti sesso e data in automatico.
                   </p>
                 {:else}
-                  <div class="p-2.5 bg-[#F9F9F8] border border-[#E4E4E7] rounded flex items-center justify-between font-mono text-xs">
-                    <span class={newProfile.codiceFiscale ? 'font-bold text-[#18181B] tracking-wider' : 'text-[#71717A] italic'}>
-                      {newProfile.codiceFiscale || 'Verrà calcolato appena compili data e comune di nascita'}
+                  <div class="p-3 bg-zinc-50 border border-zinc-200/90 rounded-xl flex items-center justify-between font-mono text-xs">
+                    <span class={newProfile.codiceFiscale ? 'font-bold text-[#09090B] tracking-wider' : 'text-zinc-400 italic'}>
+                      {newProfile.codiceFiscale || 'Verrà calcolato dopo aver compilato data e comune'}
                     </span>
                     {#if newProfile.codiceFiscale}
-                      <CheckCircle2 class="w-4 h-4 text-[#059669]" />
+                      <CheckCircle2 class="w-4 h-4 text-emerald-600" />
                     {/if}
                   </div>
                 {/if}
@@ -565,17 +594,17 @@
 
             </div>
 
-            <div class="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-[#E4E4E7]">
+            <div class="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200">
               <button
                 onclick={handleSaveActiveIdentityDirectly}
-                class="px-4 py-2 bg-[#18181B] hover:bg-[#1D4ED8] text-white text-xs font-semibold rounded craft-transition craft-press"
+                class="px-5 py-2.5 bg-[#09090B] hover:bg-[#2563EB] text-white text-xs font-bold rounded-xl craft-transition craft-press shadow-sm"
               >
                 Salva Dati nel Browser
               </button>
 
               <button
                 onclick={startCreateVault}
-                class="text-xs text-[#1D4ED8] hover:underline font-medium flex items-center space-x-1"
+                class="text-xs text-[#2563EB] hover:underline font-semibold flex items-center space-x-1"
               >
                 <Sparkles class="w-3.5 h-3.5" />
                 <span>Proteggi con 12 parole segrete</span>
@@ -586,38 +615,40 @@
 
       </div>
 
-      <!-- Sezione Destra: Firma Autografa & Portabilità -->
+      <!-- Sezione Destra: Firma Autografa & Garanzie Zero-Knowledge -->
       <div class="md:col-span-5 space-y-6">
 
         <!-- Riquadro Firma Autografa Memorizzata -->
-        <div class="bg-white border border-[#E4E4E7] rounded-lg p-5 space-y-3">
-          <div class="flex items-center justify-between border-b border-[#E4E4E7] pb-2">
-            <span class="text-xs font-bold text-[#18181B] uppercase tracking-wider flex items-center space-x-1.5">
-              <PenTool class="w-3.5 h-3.5 text-[#1D4ED8]" />
+        <div class="craft-card rounded-2xl p-6 space-y-3.5 border border-zinc-200/90 shadow-sm">
+          <div class="flex items-center justify-between border-b border-zinc-100 pb-2.5">
+            <span class="text-xs font-mono uppercase tracking-wider font-bold text-zinc-900 flex items-center space-x-1.5">
+              <PenTool class="w-3.5 h-3.5 text-[#2563EB]" />
               <span>Firma Autografa</span>
             </span>
             {#if vault.savedSignature}
-              <span class="text-[11px] font-mono text-[#059669] font-semibold">MEMORIZZATA</span>
+              <span class="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200">MEMORIZZATA</span>
             {/if}
           </div>
 
-          <p class="text-xs text-[#52525B]">
-            Disegna la tua firma una sola volta. Verrà apposta automaticamente in qualsiasi documento o modulo che compili.
+          <p class="text-xs text-zinc-600 leading-relaxed">
+            Disegna la tua firma una volta sola. Verrà impressa in automatico in ogni documento o modello che compili.
           </p>
 
           {#if vault.savedSignature}
-            <div class="border border-dashed border-[#10B981] bg-[#ECFDF5] rounded-lg p-3 space-y-2">
-              <img src={vault.savedSignature} alt="Firma memorizzata" class="h-12 object-contain mx-auto" />
-              <div class="flex items-center justify-between pt-1 border-t border-[#A7F3D0]">
+            <div class="border border-emerald-200 bg-emerald-50/70 rounded-xl p-3.5 space-y-2">
+              <div class="bg-white p-2 rounded-lg border border-emerald-200">
+                <img src={vault.savedSignature} alt="Firma memorizzata" class="h-12 object-contain mx-auto" />
+              </div>
+              <div class="flex items-center justify-between pt-1">
                 <button
                   onclick={clearSignature}
-                  class="text-[11px] text-[#DC2626] hover:underline craft-transition"
+                  class="text-xs text-red-600 hover:underline craft-transition"
                 >
                   Elimina firma
                 </button>
                 <button
                   onclick={openSignaturePad}
-                  class="text-[11px] text-[#1D4ED8] font-bold hover:underline craft-transition"
+                  class="text-xs text-[#2563EB] font-bold hover:underline craft-transition"
                 >
                   Ridisegna
                 </button>
@@ -626,22 +657,22 @@
           {:else}
             <button
               onclick={openSignaturePad}
-              class="w-full py-3 border border-dashed border-[#71717A] rounded-lg text-xs font-medium text-[#52525B] hover:border-[#18181B] hover:text-[#18181B] flex items-center justify-center space-x-2 bg-[#F9F9F8] craft-transition craft-press"
+              class="w-full py-4 border-2 border-dashed border-zinc-300 rounded-xl text-xs font-medium text-zinc-600 hover:border-zinc-900 hover:text-zinc-950 flex items-center justify-center space-x-2 bg-zinc-50/50 hover:bg-zinc-50 craft-transition craft-press"
             >
-              <PenTool class="w-3.5 h-3.5 text-[#1D4ED8]" />
+              <PenTool class="w-4 h-4 text-[#2563EB]" />
               <span>Disegna la tua firma ora</span>
             </button>
           {/if}
         </div>
 
         <!-- Riquadro Sicurezza & Garanzie Anonimato -->
-        <div class="bg-[#F9F9F8] border border-[#E4E4E7] rounded-lg p-4 space-y-2 text-xs text-[#52525B]">
-          <div class="flex items-center space-x-1.5 text-[#18181B] font-semibold">
-            <ShieldCheck class="w-4 h-4 text-[#059669]" />
-            <span>Garanzia Zero-Knowledge</span>
+        <div class="rounded-2xl p-5 space-y-2.5 text-xs text-zinc-600 bg-zinc-100/70 border border-zinc-200/80">
+          <div class="flex items-center space-x-2 text-zinc-900 font-bold">
+            <ShieldCheck class="w-4 h-4 text-emerald-600" />
+            <span>Garanzia Zero-Knowledge Radicale</span>
           </div>
-          <p>
-            COMPILALO non ha server che memorizzano anagrafiche. Se cancelli la cronologia o usi la modalità incognito, i dati svaniscono senza lasciare tracce.
+          <p class="leading-relaxed">
+            COMPILALO non possiede database cloud per conservare dati anagrafici. Se svuoti i dati del browser o navighi in modalità incognito, i file scompaiono senza lasciare traccia.
           </p>
         </div>
 
@@ -649,51 +680,72 @@
 
     </div>
 
-  <!-- STATO 2: CREAZIONE DI UN NUOVO VAULT CON LE 12 PAROLE -->
+  <!-- STATO 2: CREAZIONE DI UN NUOVO VAULT CON LE 12 PAROLE (MNEMONIC CARD) -->
   {:else if isCreatingVault}
-    <div class="bg-white border border-[#E4E4E7] rounded-lg p-6 space-y-6">
+    <div class="craft-card rounded-2xl p-6 sm:p-8 space-y-6 border border-zinc-200/90 shadow-sm">
       
-      <div class="border-b border-[#E4E4E7] pb-4">
-        <h2 class="font-serif text-xl font-bold text-[#18181B]">Configura la tua Cassaforte Cifrata</h2>
-        <p class="text-xs text-[#52525B] mt-1">
-          Conserva con cura queste 12 parole. Sono l'unica chiave esistente al mondo in grado di decifrare la tua cassaforte:
+      <div class="border-b border-zinc-200 pb-5 space-y-2">
+        <div class="flex items-center space-x-2 text-[#2563EB] text-xs font-mono uppercase tracking-wider font-semibold">
+          <FileKey class="w-4 h-4" />
+          <span>Generazione Chiave Crittografica BIP-39</span>
+        </div>
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-[#09090B]">Conserva le tue 12 parole segrete</h2>
+        <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed max-w-2xl">
+          Queste 12 parole rappresentano l'unica chiave crittografica esistente per decifrare i tuoi profili. Nessun server possiede una copia di backup.
         </p>
 
-        <!-- Chiave Mnemonic Generata -->
-        <div class="mt-3 p-3 bg-[#F9F9F8] border border-[#E4E4E7] rounded-lg font-mono text-xs text-[#1D4ED8] select-all break-words leading-relaxed">
-          {generatedMnemonicWords}
+        <!-- Griglia 12 Parole Mnemonic -->
+        <div class="mt-4 p-4 rounded-xl bg-zinc-950 text-white space-y-3 shadow-inner">
+          <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
+            {#each generatedMnemonicWords.split(' ') as word, idx}
+              <div class="p-2 rounded bg-zinc-900 border border-zinc-800 text-xs font-mono flex items-center space-x-1.5">
+                <span class="text-zinc-500 text-[10px]">{idx + 1}.</span>
+                <span class="font-bold text-zinc-200">{word}</span>
+              </div>
+            {/each}
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button
+              onclick={copyMnemonicToClipboard}
+              class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-mono text-zinc-200 craft-transition craft-press"
+            >
+              <Copy class="w-3.5 h-3.5" />
+              <span>Copia Frase Negli Appunti</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Campi Anagrafici Iniziali -->
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div>
-          <label for="nv_nome" class="block text-xs font-medium text-[#18181B] mb-1">Nome *</label>
+          <label for="nv_nome" class="block text-xs font-medium text-zinc-800 mb-1">Nome *</label>
           <input
             id="nv_nome"
             type="text"
             bind:value={newProfile.nome}
             oninput={() => tryAutoCalculateCF(newProfile)}
-            class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+            class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
           />
         </div>
         <div>
-          <label for="nv_cognome" class="block text-xs font-medium text-[#18181B] mb-1">Cognome *</label>
+          <label for="nv_cognome" class="block text-xs font-medium text-zinc-800 mb-1">Cognome *</label>
           <input
             id="nv_cognome"
             type="text"
             bind:value={newProfile.cognome}
             oninput={() => tryAutoCalculateCF(newProfile)}
-            class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+            class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
           />
         </div>
         <div>
-          <label for="nv_sesso" class="block text-xs font-medium text-[#18181B] mb-1">Sesso *</label>
+          <label for="nv_sesso" class="block text-xs font-medium text-zinc-800 mb-1">Sesso *</label>
           <select
             id="nv_sesso"
             bind:value={newProfile.sesso}
             onchange={() => tryAutoCalculateCF(newProfile)}
-            class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+            class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
           >
             <option value="M">Maschile (M)</option>
             <option value="F">Femminile (F)</option>
@@ -702,18 +754,18 @@
         </div>
 
         <div>
-          <label for="nv_dataNascita" class="block text-xs font-medium text-[#18181B] mb-1">Data di Nascita</label>
+          <label for="nv_dataNascita" class="block text-xs font-medium text-zinc-800 mb-1">Data di Nascita</label>
           <input
             id="nv_dataNascita"
             type="date"
             bind:value={newProfile.dataNascita}
             onchange={() => tryAutoCalculateCF(newProfile)}
-            class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+            class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
           />
         </div>
         
         <div class="relative">
-          <label for="nv_luogoNascita" class="block text-xs font-medium text-[#18181B] mb-1">Comune di Nascita</label>
+          <label for="nv_luogoNascita" class="block text-xs font-medium text-zinc-800 mb-1">Comune di Nascita</label>
           <input
             id="nv_luogoNascita"
             type="text"
@@ -722,18 +774,18 @@
               handleComuneSearch('new', 'luogoNascita', (e.target as HTMLInputElement).value);
               tryAutoCalculateCF(newProfile);
             }}
-            class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+            class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
           />
           {#if comuneSuggestions && comuneSuggestions.target === 'new' && comuneSuggestions.field === 'luogoNascita'}
-            <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-[#E4E4E7] rounded-lg shadow-lg z-20 overflow-hidden">
+            <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl z-20 overflow-hidden craft-modal">
               {#each comuneSuggestions.list as c}
                 <button
                   type="button"
                   onclick={() => selectComune(c)}
-                  class="w-full text-left px-3 py-2 text-xs hover:bg-[#F9F9F8] flex items-center justify-between border-b last:border-b-0 border-[#F2F1ED]"
+                  class="w-full text-left px-3.5 py-2 text-xs hover:bg-zinc-50 flex items-center justify-between border-b last:border-b-0 border-zinc-100"
                 >
-                  <span class="font-medium text-[#18181B]">{c.nome}</span>
-                  <span class="text-[10px] font-mono text-[#71717A]">{c.provincia} &middot; {c.cap}</span>
+                  <span class="font-medium text-zinc-900">{c.nome}</span>
+                  <span class="text-[10px] font-mono text-zinc-500">({c.provincia})</span>
                 </button>
               {/each}
             </div>
@@ -743,11 +795,11 @@
         <!-- CODICE FISCALE AUTO-CALCULATED WITH OVERRIDE -->
         <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <label for="nv_cf" class="block text-xs font-medium text-[#18181B]">Codice Fiscale</label>
+            <label for="nv_cf" class="block text-xs font-medium text-zinc-800">Codice Fiscale</label>
             <button
               type="button"
               onclick={() => manualCfMode = !manualCfMode}
-              class="text-[10px] text-[#1D4ED8] hover:underline"
+              class="text-[10px] text-[#2563EB] hover:underline"
             >
               {manualCfMode ? 'Auto' : 'A mano'}
             </button>
@@ -758,42 +810,42 @@
               type="text"
               value={newProfile.codiceFiscale}
               oninput={(e) => handleManualCfChange(newProfile, (e.target as HTMLInputElement).value)}
-              class="w-full text-xs border border-[#E4E4E7] rounded p-2 font-mono uppercase craft-input"
+              class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5 font-mono uppercase"
             />
           {:else}
-            <div class="p-2 bg-[#F9F9F8] border border-[#E4E4E7] rounded text-xs font-mono font-bold text-[#18181B] flex items-center justify-between">
+            <div class="p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold text-zinc-900 flex items-center justify-between">
               <span>{newProfile.codiceFiscale || 'Auto-calcolato'}</span>
               {#if newProfile.codiceFiscale}
-                <Check class="w-3.5 h-3.5 text-[#059669]" />
+                <Check class="w-3.5 h-3.5 text-emerald-600" />
               {/if}
             </div>
           {/if}
         </div>
 
         <div class="sm:col-span-2">
-          <label for="nv_indirizzo" class="block text-xs font-medium text-[#18181B] mb-1">Indirizzo di Residenza</label>
-          <input id="nv_indirizzo" type="text" bind:value={newProfile.indirizzoResidenza} placeholder="Via Roma, 12" class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input" />
+          <label for="nv_indirizzo" class="block text-xs font-medium text-zinc-800 mb-1">Indirizzo di Residenza</label>
+          <input id="nv_indirizzo" type="text" bind:value={newProfile.indirizzoResidenza} placeholder="Via Roma, 12" class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5" />
         </div>
 
         <div class="relative">
-          <label for="nv_comuneResidenza" class="block text-xs font-medium text-[#18181B] mb-1">Comune di Residenza</label>
+          <label for="nv_comuneResidenza" class="block text-xs font-medium text-zinc-800 mb-1">Comune di Residenza</label>
           <input
             id="nv_comuneResidenza"
             type="text"
             bind:value={newProfile.comuneResidenza}
             oninput={(e) => handleComuneSearch('new', 'comuneResidenza', (e.target as HTMLInputElement).value)}
-            class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+            class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
           />
           {#if comuneSuggestions && comuneSuggestions.target === 'new' && comuneSuggestions.field === 'comuneResidenza'}
-            <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-[#E4E4E7] rounded-lg shadow-lg z-20 overflow-hidden">
+            <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl z-20 overflow-hidden craft-modal">
               {#each comuneSuggestions.list as c}
                 <button
                   type="button"
                   onclick={() => selectComune(c)}
-                  class="w-full text-left px-3 py-2 text-xs hover:bg-[#F9F9F8] flex items-center justify-between border-b last:border-b-0 border-[#F2F1ED]"
+                  class="w-full text-left px-3.5 py-2 text-xs hover:bg-zinc-50 flex items-center justify-between border-b last:border-b-0 border-zinc-100"
                 >
-                  <span class="font-medium text-[#18181B]">{c.nome}</span>
-                  <span class="text-[10px] font-mono text-[#71717A]">{c.provincia} &middot; {c.cap}</span>
+                  <span class="font-medium text-zinc-900">{c.nome}</span>
+                  <span class="text-[10px] font-mono text-zinc-500">({c.provincia})</span>
                 </button>
               {/each}
             </div>
@@ -802,21 +854,21 @@
       </div>
 
       {#if cfCheck}
-        <div class="text-xs font-mono {cfCheck.valid ? 'text-[#059669]' : 'text-[#DC2626]'}">
+        <div class="text-xs font-mono {cfCheck.valid ? 'text-emerald-700' : 'text-red-600'}">
           {cfCheck.valid ? 'Codice fiscale formalmente valido' : cfCheck.error}
         </div>
       {/if}
 
-      <div class="flex justify-end space-x-3 pt-4 border-t border-[#E4E4E7]">
+      <div class="flex justify-end space-x-3 pt-5 border-t border-zinc-200">
         <button
           onclick={() => isCreatingVault = false}
-          class="px-4 py-2 text-xs text-[#71717A] hover:text-[#18181B] craft-transition"
+          class="px-4 py-2 text-xs text-zinc-600 hover:text-zinc-900 craft-transition"
         >
           Annulla
         </button>
         <button
           onclick={handleSaveNewVault}
-          class="px-5 py-2 bg-[#18181B] hover:bg-[#1D4ED8] text-white text-xs font-semibold rounded craft-transition craft-press"
+          class="px-6 py-2.5 bg-[#09090B] hover:bg-[#2563EB] text-white text-xs font-bold rounded-xl craft-transition craft-press shadow-sm"
         >
           Cifra e Salva Localmente
         </button>
@@ -829,15 +881,15 @@
     <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
       
       <!-- Lista Profili (Io, Padre, Moglie, Figlio) -->
-      <div class="md:col-span-4 bg-white border border-[#E4E4E7] rounded-lg p-4 space-y-3">
-        <div class="flex items-center justify-between pb-2 border-b border-[#E4E4E7]">
-          <span class="text-xs font-bold text-[#18181B] uppercase tracking-wider">Profili Salvati</span>
+      <div class="md:col-span-4 craft-card rounded-2xl p-5 space-y-4 border border-zinc-200/90 shadow-sm">
+        <div class="flex items-center justify-between pb-3 border-b border-zinc-100">
+          <span class="text-xs font-mono uppercase tracking-wider font-bold text-zinc-900">Profili Salvati</span>
           <button
             onclick={addNewFamilyProfile}
-            class="text-xs text-[#1D4ED8] hover:underline flex items-center space-x-1 craft-press font-semibold"
+            class="text-xs text-[#2563EB] hover:underline flex items-center space-x-1 craft-press font-semibold"
           >
             <Plus class="w-3.5 h-3.5" />
-            <span>Aggiungi</span>
+            <span>Nuovo</span>
           </button>
         </div>
 
@@ -845,27 +897,27 @@
           {#each vault.profiles as profile}
             <button
               onclick={() => { editingProfile = { ...profile }; vault.activeProfileId = profile.id; }}
-              class="w-full text-left p-2.5 rounded-lg border text-xs craft-transition craft-press {editingProfile?.id === profile.id ? 'bg-[#EFF6FF] border-[#1D4ED8] text-[#1D4ED8]' : 'bg-[#F9F9F8] border-[#E4E4E7] text-[#18181B]'}"
+              class="w-full text-left p-3 rounded-xl border text-xs craft-transition craft-press {editingProfile?.id === profile.id ? 'bg-blue-50/80 border-[#2563EB] text-[#2563EB] shadow-2xs font-bold' : 'bg-zinc-50/60 border-zinc-200 text-zinc-800 hover:bg-zinc-100'}"
             >
-              <div class="font-semibold">{profile.label}</div>
-              <div class="text-[11px] text-[#71717A]">{profile.cognome} {profile.nome}</div>
+              <div>{profile.label}</div>
+              <div class="text-[11px] text-zinc-500 font-normal">{profile.cognome} {profile.nome}</div>
             </button>
           {/each}
         </div>
 
         <!-- Strumenti di Backup e Portabilità -->
-        <div class="pt-4 border-t border-[#E4E4E7] space-y-2">
+        <div class="pt-4 border-t border-zinc-200 space-y-2">
           <button
             onclick={() => { vault.exportBackup(); showToast('Backup .compilalo esportato!'); }}
-            class="w-full py-1.5 px-2 bg-[#F2F1ED] hover:bg-[#E4E4E7] text-[#18181B] rounded text-xs flex items-center justify-center space-x-1.5 craft-transition craft-press"
+            class="w-full py-2 px-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-lg text-xs font-medium flex items-center justify-center space-x-1.5 craft-transition craft-press"
           >
-            <Download class="w-3.5 h-3.5" />
+            <Download class="w-3.5 h-3.5 text-zinc-600" />
             <span>Esporta Backup (.compilalo)</span>
           </button>
 
           <button
             onclick={() => { if (confirm('Sei sicuro di voler distruggere la cassaforte da questo browser?')) { vault.destroyVault(); showToast('Cassaforte eliminata'); } }}
-            class="w-full py-1.5 px-2 text-[#DC2626] hover:bg-[#FEF2F2] rounded text-xs flex items-center justify-center space-x-1.5 craft-transition craft-press"
+            class="w-full py-2 px-3 text-red-600 hover:bg-red-50 rounded-lg text-xs font-medium flex items-center justify-center space-x-1.5 craft-transition craft-press"
           >
             <Trash2 class="w-3.5 h-3.5" />
             <span>Elimina Cassaforte Locale</span>
@@ -875,16 +927,16 @@
 
       <!-- Dettaglio Profilo Selezionato -->
       {#if editingProfile}
-        <div class="md:col-span-8 bg-white border border-[#E4E4E7] rounded-lg p-6 space-y-5">
-          <div class="flex items-center justify-between border-b border-[#E4E4E7] pb-3">
+        <div class="md:col-span-8 craft-card rounded-2xl p-6 sm:p-7 space-y-5 border border-zinc-200/90 shadow-sm">
+          <div class="flex items-center justify-between border-b border-zinc-100 pb-4">
             <div>
-              <h3 class="font-serif text-lg font-bold text-[#18181B]">{editingProfile.label}</h3>
-              <p class="text-xs text-[#71717A]">Modifica i dati pronti per l'auto-compilazione.</p>
+              <h3 class="font-serif text-xl font-bold text-[#09090B]">{editingProfile.label}</h3>
+              <p class="text-xs text-zinc-500 mt-0.5">I dati verranno cifrati con AES-GCM alla chiusura.</p>
             </div>
 
             <button
               onclick={handleSaveProfileChanges}
-              class="px-4 py-2 bg-[#18181B] hover:bg-[#059669] text-white rounded text-xs font-semibold flex items-center space-x-1.5 craft-transition craft-press"
+              class="px-5 py-2.5 bg-[#09090B] hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 craft-transition craft-press shadow-sm"
             >
               <Save class="w-3.5 h-3.5" />
               <span>Salva Modifiche</span>
@@ -893,17 +945,17 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="ed_label" class="block text-xs font-medium text-[#18181B] mb-1">Etichetta Profilo</label>
-              <input id="ed_label" type="text" bind:value={editingProfile.label} class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input" />
+              <label for="ed_label" class="block text-xs font-medium text-zinc-800 mb-1">Etichetta Profilo</label>
+              <input id="ed_label" type="text" bind:value={editingProfile.label} class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5" />
             </div>
 
             <div>
-              <label for="ed_sesso" class="block text-xs font-medium text-[#18181B] mb-1">Sesso</label>
+              <label for="ed_sesso" class="block text-xs font-medium text-zinc-800 mb-1">Sesso</label>
               <select
                 id="ed_sesso"
                 bind:value={editingProfile.sesso}
                 onchange={() => editingProfile && tryAutoCalculateCF(editingProfile)}
-                class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
               >
                 <option value="M">Maschile (M)</option>
                 <option value="F">Femminile (F)</option>
@@ -912,39 +964,39 @@
             </div>
 
             <div>
-              <label for="ed_nome" class="block text-xs font-medium text-[#18181B] mb-1">Nome</label>
+              <label for="ed_nome" class="block text-xs font-medium text-zinc-800 mb-1">Nome</label>
               <input
                 id="ed_nome"
                 type="text"
                 bind:value={editingProfile.nome}
                 oninput={() => editingProfile && tryAutoCalculateCF(editingProfile)}
-                class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
               />
             </div>
             <div>
-              <label for="ed_cognome" class="block text-xs font-medium text-[#18181B] mb-1">Cognome</label>
+              <label for="ed_cognome" class="block text-xs font-medium text-zinc-800 mb-1">Cognome</label>
               <input
                 id="ed_cognome"
                 type="text"
                 bind:value={editingProfile.cognome}
                 oninput={() => editingProfile && tryAutoCalculateCF(editingProfile)}
-                class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
               />
             </div>
 
             <div>
-              <label for="ed_dataNascita" class="block text-xs font-medium text-[#18181B] mb-1">Data di Nascita</label>
+              <label for="ed_dataNascita" class="block text-xs font-medium text-zinc-800 mb-1">Data di Nascita</label>
               <input
                 id="ed_dataNascita"
                 type="date"
                 bind:value={editingProfile.dataNascita}
                 onchange={() => editingProfile && tryAutoCalculateCF(editingProfile)}
-                class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
               />
             </div>
 
             <div class="relative">
-              <label for="ed_luogoNascita" class="block text-xs font-medium text-[#18181B] mb-1">Comune di Nascita</label>
+              <label for="ed_luogoNascita" class="block text-xs font-medium text-zinc-800 mb-1">Comune di Nascita</label>
               <input
                 id="ed_luogoNascita"
                 type="text"
@@ -953,18 +1005,18 @@
                   handleComuneSearch('edit', 'luogoNascita', (e.target as HTMLInputElement).value);
                   if (editingProfile) tryAutoCalculateCF(editingProfile);
                 }}
-                class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
               />
               {#if comuneSuggestions && comuneSuggestions.target === 'edit' && comuneSuggestions.field === 'luogoNascita'}
-                <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-[#E4E4E7] rounded-lg shadow-lg z-20 overflow-hidden">
+                <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl z-20 overflow-hidden craft-modal">
                   {#each comuneSuggestions.list as c}
                     <button
                       type="button"
                       onclick={() => selectComune(c)}
-                      class="w-full text-left px-3 py-2 text-xs hover:bg-[#F9F9F8] flex items-center justify-between border-b last:border-b-0 border-[#F2F1ED]"
+                      class="w-full text-left px-3.5 py-2 text-xs hover:bg-zinc-50 flex items-center justify-between border-b last:border-b-0 border-zinc-100"
                     >
-                      <span class="font-medium text-[#18181B]">{c.nome}</span>
-                      <span class="text-[10px] font-mono text-[#71717A]">{c.provincia} &middot; {c.cap}</span>
+                      <span class="font-medium text-zinc-900">{c.nome}</span>
+                      <span class="text-[10px] font-mono text-zinc-500">({c.provincia})</span>
                     </button>
                   {/each}
                 </div>
@@ -972,13 +1024,13 @@
             </div>
 
             <!-- Auto-CF or Manual CF in Editing Profile -->
-            <div class="sm:col-span-2 pt-2 border-t border-[#E4E4E7] space-y-2">
+            <div class="sm:col-span-2 pt-3 border-t border-zinc-200 space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#18181B] flex items-center space-x-1.5">
-                  <Calculator class="w-3.5 h-3.5 text-[#1D4ED8]" />
+                <span class="text-xs font-bold text-zinc-900 flex items-center space-x-1.5">
+                  <Calculator class="w-3.5 h-3.5 text-[#2563EB]" />
                   <span>Codice Fiscale</span>
                   {#if !manualCfMode && editingProfile.codiceFiscale}
-                    <span class="ml-1 text-[10px] font-mono text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded border border-[#A7F3D0]">
+                    <span class="ml-1 text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
                       CALCOLATO
                     </span>
                   {/if}
@@ -987,10 +1039,10 @@
                 <button
                   type="button"
                   onclick={() => manualCfMode = !manualCfMode}
-                  class="text-[11px] text-[#1D4ED8] hover:underline flex items-center space-x-1"
+                  class="text-[11px] text-[#2563EB] hover:underline flex items-center space-x-1"
                 >
                   <Edit3 class="w-3 h-3" />
-                  <span>{manualCfMode ? 'Torna al calcolo automatico' : 'Preferisco inserirlo a mano'}</span>
+                  <span>{manualCfMode ? 'Torna al calcolo automatico' : 'Modifica a mano'}</span>
                 </button>
               </div>
 
@@ -1000,44 +1052,44 @@
                   type="text"
                   value={editingProfile.codiceFiscale}
                   oninput={(e) => editingProfile && handleManualCfChange(editingProfile, (e.target as HTMLInputElement).value)}
-                  class="w-full text-xs border border-[#E4E4E7] rounded p-2 font-mono uppercase craft-input"
+                  class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5 font-mono uppercase"
                 />
               {:else}
-                <div class="p-2.5 bg-[#F9F9F8] border border-[#E4E4E7] rounded flex items-center justify-between font-mono text-xs">
-                  <span class={editingProfile.codiceFiscale ? 'font-bold text-[#18181B] tracking-wider' : 'text-[#71717A] italic'}>
+                <div class="p-3 bg-zinc-50 border border-zinc-200/90 rounded-xl flex items-center justify-between font-mono text-xs">
+                  <span class={editingProfile.codiceFiscale ? 'font-bold text-[#09090B] tracking-wider' : 'text-zinc-400 italic'}>
                     {editingProfile.codiceFiscale || 'Verrà calcolato appena compili data e comune di nascita'}
                   </span>
                   {#if editingProfile.codiceFiscale}
-                    <CheckCircle2 class="w-4 h-4 text-[#059669]" />
+                    <CheckCircle2 class="w-4 h-4 text-emerald-600" />
                   {/if}
                 </div>
               {/if}
             </div>
 
             <div class="sm:col-span-2">
-              <label for="ed_indirizzo" class="block text-xs font-medium text-[#18181B] mb-1">Indirizzo di Residenza</label>
-              <input id="ed_indirizzo" type="text" bind:value={editingProfile.indirizzoResidenza} class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input" />
+              <label for="ed_indirizzo" class="block text-xs font-medium text-zinc-800 mb-1">Indirizzo di Residenza</label>
+              <input id="ed_indirizzo" type="text" bind:value={editingProfile.indirizzoResidenza} class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5" />
             </div>
 
             <div class="relative">
-              <label for="ed_comuneResidenza" class="block text-xs font-medium text-[#18181B] mb-1">Comune di Residenza</label>
+              <label for="ed_comuneResidenza" class="block text-xs font-medium text-zinc-800 mb-1">Comune di Residenza</label>
               <input
                 id="ed_comuneResidenza"
                 type="text"
                 bind:value={editingProfile.comuneResidenza}
                 oninput={(e) => handleComuneSearch('edit', 'comuneResidenza', (e.target as HTMLInputElement).value)}
-                class="w-full text-xs border border-[#E4E4E7] rounded p-2 craft-input"
+                class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5"
               />
               {#if comuneSuggestions && comuneSuggestions.target === 'edit' && comuneSuggestions.field === 'comuneResidenza'}
-                <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-[#E4E4E7] rounded-lg shadow-lg z-20 overflow-hidden">
+                <div class="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl z-20 overflow-hidden craft-modal">
                   {#each comuneSuggestions.list as c}
                     <button
                       type="button"
                       onclick={() => selectComune(c)}
-                      class="w-full text-left px-3 py-2 text-xs hover:bg-[#F9F9F8] flex items-center justify-between border-b last:border-b-0 border-[#F2F1ED]"
+                      class="w-full text-left px-3.5 py-2 text-xs hover:bg-zinc-50 flex items-center justify-between border-b last:border-b-0 border-zinc-100"
                     >
-                      <span class="font-medium text-[#18181B]">{c.nome}</span>
-                      <span class="text-[10px] font-mono text-[#71717A]">{c.provincia} &middot; {c.cap}</span>
+                      <span class="font-medium text-zinc-900">{c.nome}</span>
+                      <span class="text-[10px] font-mono text-zinc-500">({c.provincia})</span>
                     </button>
                   {/each}
                 </div>
@@ -1045,8 +1097,8 @@
             </div>
 
             <div>
-              <label for="ed_cap" class="block text-xs font-medium text-[#18181B] mb-1">CAP</label>
-              <input id="ed_cap" type="text" bind:value={editingProfile.capResidenza} class="w-full text-xs border border-[#E4E4E7] rounded p-2 font-mono craft-input" />
+              <label for="ed_cap" class="block text-xs font-medium text-zinc-800 mb-1">CAP</label>
+              <input id="ed_cap" type="text" bind:value={editingProfile.capResidenza} class="craft-input w-full text-xs border border-zinc-300 rounded-lg p-2.5 font-mono" />
             </div>
           </div>
         </div>
@@ -1059,26 +1111,26 @@
 
 <!-- Modal di Firma Autografa (Emil Kowalski craft-modal: 180ms ease-out) -->
 {#if showSignatureModal}
-  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 transition-opacity duration-150">
-    <div class="bg-white rounded-lg border border-[#E4E4E7] shadow-xl max-w-lg w-full p-6 space-y-4 craft-modal">
-      <div class="flex items-center justify-between border-b border-[#E4E4E7] pb-3">
-        <h3 class="font-serif text-lg font-bold text-[#18181B]">Disegna la tua Firma</h3>
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-2xs z-50 flex items-center justify-center p-4 transition-opacity duration-150">
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-2xl max-w-lg w-full p-6 space-y-4 craft-modal">
+      <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+        <div>
+          <h3 class="font-serif text-xl font-bold text-[#09090B]">Disegna la tua Firma</h3>
+          <p class="text-xs text-zinc-500 mt-0.5">Traccia la firma con dito, penna o mouse</p>
+        </div>
         <button
           onclick={() => showSignatureModal = false}
-          class="text-xs font-mono text-[#71717A] hover:text-[#18181B] craft-transition"
+          class="p-1 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 craft-transition"
+          aria-label="Chiudi finestra"
         >
-          Annulla
+          <X class="w-5 h-5" />
         </button>
       </div>
 
-      <p class="text-xs text-[#52525B]">
-        Traccia la tua firma con il dito, mouse o penna. Rimane memorizzata esclusivamente in questo browser.
-      </p>
-
-      <div class="border border-[#E4E4E7] rounded bg-[#F9F9F8]">
+      <div class="border border-zinc-200 rounded-xl bg-zinc-50/70 p-1">
         <canvas
           bind:this={canvasEl}
-          class="w-full h-44 touch-none cursor-crosshair"
+          class="w-full h-44 touch-none cursor-crosshair rounded-lg bg-white"
         ></canvas>
       </div>
 
@@ -1086,17 +1138,17 @@
         <button
           type="button"
           onclick={clearSignature}
-          class="px-3 py-1.5 text-xs text-[#71717A] hover:text-[#18181B] border border-[#E4E4E7] rounded craft-transition craft-press"
+          class="px-3.5 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-950 border border-zinc-200 rounded-lg hover:bg-zinc-50 craft-transition craft-press"
         >
-          Cancella
+          Cancella e rifai
         </button>
 
         <button
           type="button"
           onclick={saveSignature}
-          class="px-4 py-1.5 text-xs font-semibold bg-[#18181B] text-white rounded hover:bg-[#1D4ED8] craft-transition craft-press"
+          class="px-5 py-2 text-xs font-semibold bg-[#09090B] text-white rounded-lg hover:bg-[#2563EB] craft-transition craft-press shadow-sm"
         >
-          Salva Firma
+          Salva Firma nel Browser
         </button>
       </div>
     </div>

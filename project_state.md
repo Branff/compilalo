@@ -8,6 +8,50 @@
 
 ---
 
+### [2026-10-12] — Redesign Completo: High-Craft Modern SaaS & Emil Kowalski Animations (`/taste`, `/impeccable`)
+1. **Cosa è cambiato:**
+   - **Protocolli di Design & Eliminazione Cliché AI (`DESIGN.md`, `src/app.css`):**
+     - Applicati i canoni di *Paul Bakaus* (`impeccable`) e *Leonxlnx* (`taste`): eliminati tutti i pattern derivati da AI generativa (bandite le card dentro card tipo matrioska, rimossi i bordi spessi decorativi a sinistra `border-l-4`, banditi i gradienti viola/blu generici).
+     - Riconfigurati i token di design ispirandosi ai migliori SaaS di riferimento al vertice del settore (**Linear, Stripe, Raycast, Craft Docs**): canvas caldo in pietra naturale (`#FAFAF9`), inchiostro ad alto contrasto profondo (`#09090B`), accenti blu reale/cobalto istituzionale (`#2563EB`) ed emerald di stato (`#059669`).
+     - Tipografia ad altissima leggibilità: intestazioni autorevoli in `Instrument Serif` accoppiate con `IBM Plex Sans` e `IBM Plex Mono` con cifre tabulari (`font-variant-numeric: tabular-nums;`).
+   - **Sistema di Micro-Interazioni e Fisica (Emil Kowalski Standard - `animations.dev`):**
+     - Introdotte classi di transizione hardware-accelerate (`transform`, `opacity` su curve `cubic-bezier(0.16, 1, 0.3, 1)` tra 120ms e 220ms).
+     - Feedback tattile fisico su click e bottoni (`.craft-press` con `scale(0.98)` su `:active`).
+     - Sollevamento morbido con micro-ombra sulle card al passaggio del mouse (`.craft-hover` con `translateY(-1.5px)`).
+     - Indicatore di stato pulsante discreto (`.pulse-dot` con `opacity` ed espansione graduale) per comunicare che la memoria del browser è 100% in locale e non invia dati al cloud.
+     - Badge di scorciatoia da tastiera (`.craft-kbd`, es. `⌘O`).
+     - Modali e finestre a comparsa con entrata naturale da `scale(0.98) translateY(6px)` a `scale(1) translateY(0)` (vietata l'animazione clown da `scale(0)`).
+   - **Riprogettazione Header Globale & Navigazione (`src/routes/+layout.svelte`):**
+     - Barra di navigazione sticky con effetto vetro opaco (`backdrop-blur-md bg-white/90 border-b border-zinc-200/80`).
+     - Monogramma geometrico ad alto contrasto.
+     - Segmented control con pillole di navigazione ad attivazione rapida.
+     - Indicatore live sempre visibile: pallino verde pulsante *"100% In Locale • Zero Cloud"* e badge di sincronizzazione anagrafica pronta.
+     - Footer moderno strutturato a 4 colonne con garanzie civiche ed etica cypherpunk.
+   - **Riprogettazione Homepage & Dropzone (`src/routes/+page.svelte`):**
+     - Hero accogliente e ad altissimo contrasto visivo ("Compila e firma qualsiasi documento. In dieci secondi.").
+     - Dropzone magnetica con bordo tratteggiato elegante, transizione attiva al drag-over e supporto scorciatoia `⌘O`.
+     - Workstation di compilazione PDF immediata con checklist visuale dei campi, firma con inchiostro vettoriale e scaricamento istantaneo.
+     - Nuova sezione a schede segmentate per esplorare i 32 modelli con conteggi e tag di categoria.
+     - Sezione architettonica di trasparenza *"Perché i tuoi dati personali sono al sicuro al 100%"* con visualizzatore comandi F12 Network.
+   - **Riprogettazione Postazione di Compilazione (`src/routes/compila/+page.svelte`):**
+     - Split screen asimmetrico ad alta ergonomia: form a sinistra con auto-calcolo CF matematico e autocompletamento comuni, foglio A4 simulato a destra con texture carta d'archivio e timbro filigranato.
+     - Barra strumenti con esportazione PDF ufficiale, Word (.docx) e Promemoria Scadenza Calendario (.ics).
+   - **Riprogettazione Cassaforte Hardware-Grade (`src/routes/vault/+page.svelte`):**
+     - Schermata di sicurezza avanzata ispirata a 1Password e Mullvad.
+     - Griglia per le 12 parole segrete della seed phrase BIP-39 con copia con un solo clic.
+     - Gestione multi-profilo familiare con schede a commutazione immediata.
+   - **Riprogettazione Pagine Editoriali & Legali (`blog`, `manifesto`, `sicurezza`, `privacy`, `termini`):**
+     - Allineate a layout editoriale contemporaneo con typography leggibile e zero elementi di distrazione.
+   - **Validazione del Codice:**
+     - `npm run check`: **0 errori e 0 avvisi**.
+     - `npm run build`: Build statica completata con successo con generazione di tutte le 16 pagine in HTML autonomo.
+
+2. **Perché è cambiato:**
+   - Risposta alla richiesta dell'utente di utilizzare `/taste` e `/impeccable` per rifare l'intero design del sito rendendolo moderno, leggero, innovativo, con animazioni fluide e con la qualità dei migliori SaaS del mercato (Linear, Stripe, Raycast), eliminando totalmente ogni impressione di design generico da AI.
+
+3. **Come funziona il sistema ora:**
+   - COMPILALO offre un'esperienza utente pari ai migliori software moderni internazionali: reattivo, istantaneo nei feedback fisici, con una gerarchia visiva impeccabile, leggero da caricare (100% statico e WASM) e completamente privo di elementi grafici artificiali o banali.
+
 ### [2026-10-12] — Overhaul Totale SEO, GEO/AEO & Schema.org (`/claude-seo`)
 1. **Cosa è cambiato:**
    - **Infrastruttura Head Globale (`src/app.html`):**

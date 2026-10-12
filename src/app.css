@@ -5,43 +5,64 @@
   --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-canvas: #F9F9F8;
+  --color-canvas: #FAFAF9;
   --color-sheet: #FFFFFF;
-  --color-panel: #F2F1ED;
-  --color-subtle: #EBEAE5;
+  --color-panel: #F4F4F5;
+  --color-subtle: #E4E4E7;
 
-  --color-ink-primary: #18181B;
+  --color-ink-primary: #09090B;
   --color-ink-secondary: #52525B;
   --color-ink-muted: #71717A;
 
-  --color-border-sheet: #E4E4E7;
-  --color-border-strong: #27272A;
+  --color-border-sheet: rgba(24, 24, 27, 0.08);
+  --color-border-strong: rgba(24, 24, 27, 0.18);
 
-  --color-accent-cobalt: #1D4ED8;
+  --color-accent-cobalt: #2563EB;
+  --color-accent-cobalt-hover: #1D4ED8;
   --color-accent-emerald: #059669;
   --color-accent-amber: #D97706;
   --color-accent-crimson: #DC2626;
 }
 
-/* Custom Paper & Editorial Styles */
+/* =========================================================================
+   SaaS DESIGN SYSTEM & CRAFT TOKENS
+   Inspired by Linear, Stripe, Raycast & Craft Docs
+   ========================================================================= */
+
 :root {
-  --surface-canvas: #F9F9F8;
-  --surface-sheet: #FFFFFF;
-  --surface-panel: #F2F1ED;
-  --ink-primary: #18181B;
-  --ink-secondary: #52525B;
-  --border-sheet: #E4E4E7;
+  --bg-canvas: #FAFAF9;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #F4F4F5;
+  --bg-muted: #E4E4E7;
+
+  --text-primary: #09090B;
+  --text-secondary: #52525B;
+  --text-muted: #71717A;
+
+  --border-subtle: rgba(24, 24, 27, 0.08);
+  --border-strong: rgba(24, 24, 27, 0.20);
+
+  --accent-cobalt: #2563EB;
+  --accent-emerald: #059669;
+}
+
+/* Base Body Setup */
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* =========================================================================
-   EMIL KOWALSKI CRAFT STANDARDS (animations.dev)
-   - GPU-accelerated transforms & opacity ONLY
-   - Durations strictly between 120ms and 240ms (never sluggish)
-   - Cubic-bezier curves: decelerate on enter, accelerate on exit
+   EMIL KOWALSKI CRAFT PHYSICS (animations.dev)
+   Strictly GPU accelerated, 120ms - 220ms durations
    ========================================================================= */
 
 .craft-transition {
-  transition-property: transform, opacity, background-color, border-color, color;
+  transition-property: transform, opacity, background-color, border-color, box-shadow, color;
   transition-duration: 160ms;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -51,14 +72,35 @@
 }
 
 .craft-press:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
-/* Smooth modal entry (No scale(0) clown-car animation!) */
+.craft-hover {
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease;
+}
+
+.craft-hover:hover {
+  transform: translateY(-1.5px);
+}
+
+/* Crisp elevated cards */
+.craft-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(24, 24, 27, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease;
+}
+
+.craft-card:hover {
+  border-color: rgba(24, 24, 27, 0.16);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* Modal and Drawer Entrances */
 @keyframes craftModalIn {
   from {
     opacity: 0;
-    transform: scale(0.97) translateY(4px);
+    transform: scale(0.98) translateY(6px);
   }
   to {
     opacity: 1;
@@ -71,31 +113,89 @@
   transform-origin: center center;
 }
 
-/* Tabular numbers for tax codes, dates, amounts */
-.tabular-data {
-  font-variant-numeric: tabular-nums;
+@keyframes craftFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Consistent high-craft input fields */
+.craft-fade-in {
+  animation: craftFadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Subtle live pulse indicator (Zero cloud, local memory) */
+@keyframes pulseSubtle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.15);
+  }
+}
+
+.pulse-dot {
+  animation: pulseSubtle 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Tabular figures for codes, dates, numbers */
+.tabular-data {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Precision Input Fields */
 .craft-input {
-  transition: border-color 140ms ease, box-shadow 140ms ease;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
   outline: none;
+  font-size: 14px;
 }
 
 .craft-input:focus {
-  border-color: #18181B;
-  box-shadow: 0 0 0 1px #18181B;
+  border-color: #09090B;
+  box-shadow: 0 0 0 1px #09090B, 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Watermark/Stamp effect for official forms */
+/* Keyboard Shortcut Pills (Linear / Raycast style) */
+.craft-kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background-color: #F4F4F5;
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  color: #71717A;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Paper Sheet Simulator for Document Rendering */
+.sheet-paper {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(24, 24, 27, 0.10);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 20px 40px -15px rgba(0, 0, 0, 0.07);
+}
+
+/* Stamp Seal for Official Acts */
 .stamp-seal {
-  border: 2px dashed #1D4ED8;
-  color: #1D4ED8;
-  letter-spacing: 0.08em;
+  border: 1.5px dashed #2563EB;
+  color: #2563EB;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-/* Respect user preferences */
+/* Segmented Control / Pill tabs */
+.segmented-pill {
+  transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1), color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;

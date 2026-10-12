@@ -1,64 +1,70 @@
 # COMPILALO — Design Tokens & Aesthetics (DESIGN.md)
 
-## 1. Direzione Estetica: "La Carta Bollata Contemporanea"
-Un'estetica che fonde il rigore tipografico dei documenti legali e di stato italiani con la pulizia e l'efficienza degli strumenti software più raffinati.
+## 1. Direzione Estetica: "Cancelleria Digitale Contemporanea & High-Craft SaaS"
+Un'estetica che fonde il rigore tipografico degli atti giuridici con l'ergonomia, la leggerezza e le micro-interazioni dei migliori SaaS moderni (Linear, Stripe, Raycast, Craft Docs).
+
+- **Personalità:** Professionale, autorevole, rapido, incorruttibile, accogliente.
+- **Divieto Assoluto Anti-AI Slop:** Nessun gradiente viola/blu generico, nessuna card dentro card (Russian doll), nessun box decorativo inutile, nessun testo grigio ipo-contrastato.
 
 ---
 
 ## 2. Tipografia & Gerarchia
 - **Display / Titoli Documento:**
-  - Font primario: `Instrument Serif` (Google Fonts, libero SIL OFL) o `Newsreader`.
+  - Font primario: `Instrument Serif` (Google Fonts, libero SIL OFL).
   - Fallback: `Georgia`, `serif`.
-  - *Scopo:* Conferire dignità e autorevolezza notarile al documento.
+  - Stile: Pesi calibrati, corsivo per enfasi istituzionale, tracking leggermente negativo (`tracking-tight`).
 - **Interfaccia, Form & Corpo del Testo:**
-  - Font primario: `Geist` o `IBM Plex Sans`.
+  - Font primario: `IBM Plex Sans`.
   - Fallback: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`.
-- **Dati Tecnici, Codici Fiscali & Valute:**
-  - Font: `IBM Plex Mono` o `Geist Mono`.
-  - Regola CSS obbligatoria: `font-variant-numeric: tabular-nums;`.
+  - Leggibilità impeccabile, altezza riga generosa (`leading-relaxed` per testi lunghi, `leading-snug` per titoli).
+- **Dati Tecnici, Codici Fiscali, Date & Crittografia:**
+  - Font: `IBM Plex Mono`.
+  - Regola obbligatoria: `font-variant-numeric: tabular-nums;`.
 
 ---
 
-## 3. Palette Colori (Token Ufficiali)
-È vietato utilizzare valori esadecimali arbitrari fuori da questi token:
-
+## 3. Token di Superficie & Palette Colori
 ```css
 :root {
-  /* Superfici (Sfondo tipo carta d'archivio e avorio naturale) */
-  --surface-canvas: #F9F9F8;       /* Sfondo principale dell'app */
-  --surface-sheet: #FFFFFF;        /* Il foglio A4 o la scheda documento */
-  --surface-panel: #F2F1ED;        /* Pannelli laterali e raggruppamenti */
-  --surface-subtle: #EBEAE5;       /* Campi input a riposo */
+  /* Superfici */
+  --bg-canvas: #FAFAF9;            /* Canvas caldo, pietra chiara (Zinc 50) */
+  --bg-surface: #FFFFFF;           /* Foglio bianco puro elevato */
+  --bg-subtle: #F4F4F5;            /* Sfondi secondari e hover pills (Zinc 100) */
+  --bg-muted: #E4E4E7;             /* Barre di stato e divisori (Zinc 200) */
 
-  /* Inchiostri (Tipografia minerale, mai nero #000) */
-  --ink-primary: #18181B;          /* Testo principale ad alto contrasto (Zinc 900) */
-  --ink-secondary: #52525B;        /* Didascalie, etichette secondarie (Zinc 600) */
-  --ink-muted: #71717A;            /* Placeholder e note a margine (Zinc 500) */
+  /* Inchiostri & Contrasto Elevato (WCAG AAA) */
+  --text-primary: #09090B;         /* Inchiostro nero profondo (Zinc 950) */
+  --text-secondary: #52525B;       /* Testo descrittivo e sottotitoli (Zinc 600) */
+  --text-muted: #71717A;           /* Note a margine, placeholder (Zinc 500) */
 
-  /* Bordi & Linee di Registro */
-  --border-sheet: #E4E4E7;         /* Bordo sottile foglio (Zinc 200) */
-  --border-strong: #27272A;        /* Separatori di rilievo (Zinc 800) */
+  /* Bordi di Precisione */
+  --border-subtle: rgba(24, 24, 27, 0.08); /* Bordo hairline 1px leggero */
+  --border-strong: rgba(24, 24, 27, 0.20); /* Bordo focus e bottoni secondari */
 
-  /* Accenti Istituzionali Funzionali (Mai gradienti) */
-  --accent-cobalt: #1D4ED8;        /* Blu timbro/sigillo istituzionale */
-  --accent-cobalt-hover: #1E40AF;
-  --accent-emerald: #059669;       /* Stato valido, cifratura completata */
-  --accent-amber: #D97706;         /* Campo mancante, attenzione */
-  --accent-crimson: #DC2626;       /* Errore o codice fiscale errato */
+  /* Accenti Istituzionali Funzionali (Mai gradienti sfumati) */
+  --accent-cobalt: #2563EB;        /* Blu reale / sigillo istituzionale */
+  --accent-cobalt-hover: #1D4ED8;
+  --accent-emerald: #059669;       /* Stato valido, crittografia attiva, successo */
+  --accent-emerald-subtle: #ECFDF5;
+  --accent-amber: #D97706;         /* Avviso campo richiesto */
+  --accent-amber-subtle: #FEF3C7;
+  --accent-crimson: #DC2626;       /* Errore o cancellazione */
 }
 ```
 
 ---
 
-## 4. Parametri Taste Calibrati
-- `DESIGN_VARIANCE = 4`: Asimmetria funzionale (colonna form a sinistra ~45%, anteprima foglio reale a destra ~55%).
-- `MOTION_INTENSITY = 2`: Micro-feedback sotto i 180ms, rispetto assoluto di `prefers-reduced-motion`.
-- `VISUAL_DENSITY = 7`: Campi input compatti, spaziatura intenzionale senza dispersione.
+## 4. Parametri di Calibrazione Taste
+- `DESIGN_VARIANCE = 4`: Asimmetria funzionale ed editoriale (visualizzazione a split screen per il documento).
+- `MOTION_INTENSITY = 4`: Micro-feedback sotto i 200ms, stati hover con micro-lift (`translateY(-1px)`), active tattile (`scale(0.98)`).
+- `VISUAL_DENSITY = 7`: Ergonomia compatta, densità operativa senza dispersione.
 
 ---
 
-## 5. Standard di Craft (Emil Kowalski Rules)
-- Nessuna animazione con `transition: all`.
-- Entrate animate solo con `transform` (`scale(0.97)` a `scale(1)`) e `opacity: 0` a `1` con curva `cubic-bezier(0.16, 1, 0.3, 1)` in 180ms.
-- Input focus ring: 2px solido con offset pulito (`outline: 2px solid var(--ink-primary); outline-offset: 2px`).
-- Nessun blocco al copia-incolla sui campi.
+## 5. Regole di Motion & Craft (Emil Kowalski Standard)
+1. **Durata e Curve:**
+   - Transizioni di stato: `140ms - 180ms cubic-bezier(0.16, 1, 0.3, 1)`.
+   - Modali ed entrate: `opacity: 0 -> 1`, `transform: scale(0.98) translateY(4px) -> scale(1) translateY(0)` in 180ms.
+   - Vietato `transition: all`.
+2. **Proprietà Accelerate:** Solo `transform` e `opacity`.
+3. **Rispetto Assoluto:** `@media (prefers-reduced-motion: reduce)`.
