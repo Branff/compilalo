@@ -24,10 +24,11 @@
      - Installata la skill con architettura per Programmatic SEO, AEO/GEO e Schema markup.
      - Creato `static/llms.txt` per motori di ricerca generativi (Perplexity, Claude, ChatGPT, Gemini).
      - Creato `static/robots.txt` e strutturati i metadati JSON-LD `SoftwareApplication`, `FAQPage` e `HowTo`.
-   - **Forum Civico & Flusso di Traffico Organico (`src/routes/forum/+page.svelte`):**
-     - Sezione Q&A con 8+ discussioni burocratiche ad alto traffico organico (ricorso autovelox, decertificazione scuola, disdetta affitto per gravi motivi, delega poste, diffida 15 giorni).
-     - Ogni risposta include citazione della normativa ufficiale e pulsante 1-click CTA che rimanda direttamente al modulo precompilato su `/compila?id=...`.
-     - Struttura `FAQPage` schema.org conforme alle linee guida di Google.
+   - **Blog Civico & Guide Burocratiche SEO (`src/routes/blog/+page.svelte`, `src/routes/blog/[slug]/`):**
+     - Sostituito il forum con un **Blog editoriale e giuridico completo** per la massima resa di indicizzazione organica su Google e motori AI (Perplexity, ChatGPT, Claude).
+     - 8 guide approfondite su quesiti burocratici ad altissimo volume di ricerca (autocertificazione residenza senza bollo, ricorso autovelox Cass. 10505/2024, disdetta affitto per gravi motivi con 6 mesi di preavviso, delega poste anziani, diffida 15 giorni, ecc.).
+     - Ogni articolo è dotato di metadata JSON-LD `BlogPosting`/`Article`, box con normativa di legge, autore verificato, tempo di lettura e **card CTA 1-click** che instrada direttamente verso il fac-simile pronto su `/compila?id=...`.
+     - Generazione statica completa di tutte le pagine via `entries()` prerender in `src/routes/blog/[slug]/+page.ts`.
    - **Pagine Informative, Legali & Manifesto:**
      - `/manifesto` (Manifesto del Cittadino Digitale, Privacy Radicale, sovranità dei dati ed etica cypherpunk).
      - `/sicurezza` (Whitepaper Tecnico Zero-Knowledge: AES-GCM-256, PBKDF2 600.000 iterazioni, WebCrypto API, verifica F12 zero-network).

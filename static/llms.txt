@@ -27,7 +27,7 @@
 - Carica e compila qualsiasi PDF: https://compilalo.it/
 - Catalogo modelli facsimile: https://compilalo.it/compila
 - Cassaforte cifrata locale: https://compilalo.it/vault
-- Forum di Consulenza e Risposte Civiche: https://compilalo.it/forum
+- Blog Civico & Guide Burocratiche: https://compilalo.it/blog
 - Manifesto Civico: https://compilalo.it/manifesto
 - Whitepaper Sicurezza e Crittografia: https://compilalo.it/sicurezza
 - Privacy Zero-Log GDPR Art. 25: https://compilalo.it/privacy

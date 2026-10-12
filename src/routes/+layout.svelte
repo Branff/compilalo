@@ -51,10 +51,10 @@
         </a>
 
         <a
-          href="/forum"
-          class="px-3 py-1.5 rounded-md craft-transition craft-press {currentPath.startsWith('/forum') ? 'bg-[#18181B] text-white' : 'text-[#52525B] hover:text-[#18181B] hover:bg-[#F2F1ED]'}"
+          href="/blog"
+          class="px-3 py-1.5 rounded-md craft-transition craft-press {currentPath.startsWith('/blog') ? 'bg-[#18181B] text-white' : 'text-[#52525B] hover:text-[#18181B] hover:bg-[#F2F1ED]'}"
         >
-          Forum Civico
+          Blog & Guide
         </a>
 
         <a
@@ -125,7 +125,7 @@
       <div class="border-t border-[#F2F1ED] pt-3 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 text-[11px]">
         <a href="/manifesto" class="hover:text-[#18181B] hover:underline craft-transition">Manifesto Civico</a>
         <a href="/sicurezza" class="hover:text-[#18181B] hover:underline craft-transition">Whitepaper Sicurezza & Crittografia</a>
-        <a href="/forum" class="hover:text-[#18181B] hover:underline craft-transition">Forum Civico Q&A</a>
+        <a href="/blog" class="hover:text-[#18181B] hover:underline craft-transition">Blog Civico & Guide</a>
         <a href="/privacy" class="hover:text-[#18181B] hover:underline craft-transition">Privacy Zero-Log (GDPR Art. 25)</a>
         <a href="/termini" class="hover:text-[#18181B] hover:underline craft-transition">Termini & Avvertenze DPR 445</a>
       </div>
