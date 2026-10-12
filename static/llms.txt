@@ -1,0 +1,34 @@
+# COMPILALO — Civic Document Compilation Protocol
+
+> PWA italiana gratuita, anonima e local-first per la compilazione, firma e generazione di moduli della Pubblica Amministrazione e documenti legali privati.
+
+## Caratteristiche Principali
+- **Zero Costi:** 100% gratuito, senza pubblicità, senza paywall.
+- **Zero Conoscenza (Zero-Knowledge):** Nessun account, nessuna email, nessun salvataggio server. Tutta l'elaborazione dei PDF e la crittografia (AES-GCM-256) avvengono in locale nella memoria del browser.
+- **Calcolo Codice Fiscale Deterministico:** Calcolo automatico immediato senza richiesta diretta del codice fiscale, con supporto per override manuale e decodifica inversa.
+- **Firma Autografa Digitale:** Firma disegnabile a mano libera o con mouse/touchscreen, impressa direttamente sulle coordinate vettoriali del PDF.
+
+## Catalogo Modelli Disponibili (32 Modelli)
+- **Autocertificazioni (DPR 445/2000):**
+  - Dichiarazione Sostitutiva di Certificazione (Art. 46): Residenza, Stato di Famiglia, Nascita, Godimento Diritti Politici, Titolo di Studio, Situazione Reddituale/ISEE, Esistenza in Vita, Morte.
+  - Dichiarazione Sostitutiva di Atto Notorio (Art. 47): Atto Notorio Generico, Eredi e Successione Legittima, Lavori Edilizi Liberi.
+- **Deleghe:**
+  - Delega Ritiro Documenti PA, Delega Ritiro Pacchi e Raccomandate Postali, Delega Assemblea Condominiale, Delega Generica per Pratiche Amministrative.
+- **Disdette & Utenze:**
+  - Disdetta Telefonia/Internet (Legge Bersani 40/2007), Disdetta Fornitura Luce e Gas, Disdetta Abbonamento Palestra/Servizi, Disdetta Polizza Assicurativa a Scadenza, Dichiarazione Non Detenzione Canone RAI.
+- **Multe & Ricorsi:**
+  - Ricorso al Prefetto ex Art. 203 Codice della Strada, Ricorso Autovelox (Mancata Omologazione Cass. 10505/2024), Comunicazione Dati Conducente Decurtazione Punti.
+- **Casa & Locazioni:**
+  - Disdetta Locazione Conduttore per Gravi Motivi (L. 431/98 Art. 3 c.6), Richiesta Riparazioni Urgenti Locatore (Art. 1577 C.C.), Sollecito Restituzione Deposito Cauzionale con Interessi.
+- **Diffide & Reclami:**
+  - Diffida ad Adempiere con Termine 15 Giorni (Art. 1454 C.C.), Reclamo Ritardo/Cancellazione Volo Aereo (Reg. CE 261/2004), Contestazione Addebito Bancario Non Dovuto, Richiesta Cancellazione Dati GDPR (Art. 17).
+
+## Link Rapidi
+- Carica e compila qualsiasi PDF: https://compilalo.it/
+- Catalogo modelli facsimile: https://compilalo.it/compila
+- Cassaforte cifrata locale: https://compilalo.it/vault
+- Forum di Consulenza e Risposte Civiche: https://compilalo.it/forum
+- Manifesto Civico: https://compilalo.it/manifesto
+- Whitepaper Sicurezza e Crittografia: https://compilalo.it/sicurezza
+- Privacy Zero-Log GDPR Art. 25: https://compilalo.it/privacy
+- Termini e Condizioni d'Uso: https://compilalo.it/termini

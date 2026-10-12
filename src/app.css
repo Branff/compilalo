@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-canvas: #F9F9F8;
+  --color-sheet: #FFFFFF;
+  --color-panel: #F2F1ED;
+  --color-subtle: #EBEAE5;
+
+  --color-ink-primary: #18181B;
+  --color-ink-secondary: #52525B;
+  --color-ink-muted: #71717A;
+
+  --color-border-sheet: #E4E4E7;
+  --color-border-strong: #27272A;
+
+  --color-accent-cobalt: #1D4ED8;
+  --color-accent-emerald: #059669;
+  --color-accent-amber: #D97706;
+  --color-accent-crimson: #DC2626;
+}
+
+/* Custom Paper & Editorial Styles */
+:root {
+  --surface-canvas: #F9F9F8;
+  --surface-sheet: #FFFFFF;
+  --surface-panel: #F2F1ED;
+  --ink-primary: #18181B;
+  --ink-secondary: #52525B;
+  --border-sheet: #E4E4E7;
+}
+
+/* =========================================================================
+   EMIL KOWALSKI CRAFT STANDARDS (animations.dev)
+   - GPU-accelerated transforms & opacity ONLY
+   - Durations strictly between 120ms and 240ms (never sluggish)
+   - Cubic-bezier curves: decelerate on enter, accelerate on exit
+   ========================================================================= */
+
+.craft-transition {
+  transition-property: transform, opacity, background-color, border-color, color;
+  transition-duration: 160ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.craft-press {
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.craft-press:active {
+  transform: scale(0.97);
+}
+
+/* Smooth modal entry (No scale(0) clown-car animation!) */
+@keyframes craftModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.craft-modal {
+  animation: craftModalIn 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center center;
+}
+
+/* Tabular numbers for tax codes, dates, amounts */
+.tabular-data {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Consistent high-craft input fields */
+.craft-input {
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+  outline: none;
+}
+
+.craft-input:focus {
+  border-color: #18181B;
+  box-shadow: 0 0 0 1px #18181B;
+}
+
+/* Watermark/Stamp effect for official forms */
+.stamp-seal {
+  border: 2px dashed #1D4ED8;
+  color: #1D4ED8;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
