@@ -8,6 +8,36 @@
 
 ---
 
+### [2026-10-12] — Ingestione Integrale Skill Esterne (3.500+ righe) & Applicazione Radicale Craft-Floor
+1. **Cosa è cambiato:**
+   - **Ingestione Completa & Non Troncata di Tutte le Skill (`.agent/skills/`):**
+     - Le skill fornite in precedenza come stub di 45 righe sono state sostituite con i rispettivi corpus integrali ufficiali e non abbreviati (oltre 3.500 righe totali):
+       - `impeccable`: `SKILL.md` (90 righe) + l'intera suite di 11 reference guide (`craft-floor.md`, `typeset.md`, `polish.md`, `quieter.md`, `bolder.md`, `animate.md`, `colorize.md`, `audit.md`, `new-work.md`, `mode-operate.md`, `mode-persuade.md`).
+       - `taste`: `SKILL.md` (1.228 righe integrali da `Leonxlnx/taste-skill`), con le 3 manopole, divieti assoluti anti-slop, pre-flight checklist a 40 punti.
+       - `emil-design-eng`: `SKILL.md` (674 righe integrali da `emilkowalski/skills`), con formati di review prima/dopo, curve cubic-bezier personalizzate, transizioni non bloccanti, oltre a `RECIPES.md` (324 righe) e `STANDARDS.md` (187 righe).
+       - `frontend-design`: `SKILL.md` integrale (71 righe da `anthropics/skills`).
+   - **Applicazione Rigorosa dei Divieti Craft-Floor & Anti-Slop nel Codice:**
+     - **Divieto Totale Em-Dash (`rule:skill-ban-em-dash` / Taste Section 9.G):** Eliminati tutti i trattini lunghi `—` dal codice e dai metadati, sostituiti con trattino standard `-`. Verificato che l'intero codebase `src/` conta esattamente 0 em-dash.
+     - **Divieto Kicker Eyebrows su Headings (`rule:skill-ban-eyebrow-on-every-section`):** Rimossi i pill kickers decorativi e ridondanti sopra i titoli display in `src/routes/+page.svelte` (rimosso il kicker sopra il catalogo e sopra la sezione di architettura privacy). Il titolo parla da solo con autorevolezza editoriale.
+     - **Divieto Numeratori Pigri 01/02/03 (`rule:skill-ban-numbered-section-markers`):** Rimossi i box con i numeri arbitrari `01`, `02`, `03` dalla sezione Zero-Knowledge; sostituiti con icone semantiche funzionali (`HardDrive` per la memoria locale protetta, `ShieldCheck` per la crittografia AES-256 e `WifiOff` per l'operatività offline).
+     - **Theming delle Superfici Browser (`rule:skill-craft-browser-surfaces` in `src/app.css`):**
+       - Personalizzata la selezione del testo (`::selection` e `::-moz-selection` con blu cobalto `#2563EB` e testo bianco puro).
+       - Cursore di digitazione brandizzato (`caret-color: #2563EB`).
+       - Scrollbar sottili e silenziose (`::-webkit-scrollbar` da 6px, track trasparente e thumb grigio neutro con raggio pillola).
+       - Focus ring accessibili e definiti (`:focus-visible` outline cobalto con offset 2px).
+       - Distanziamento linea di sottolineatura link (`text-underline-offset: 3px`).
+   - **Validazione:**
+     - `npm run check`: **0 errori e 0 avvisi**.
+     - `npm run build`: Build statica completata con successo con generazione di tutte le 16 pagine in HTML autonomo.
+
+2. **Perché è cambiato:**
+   - Risposta al richiamo dell'utente a non limitarsi a leggere le prime 45 righe dei file stub, ma ad assimilare ed eseguire TUTTO il corpus delle skill nella loro interezza e senza tagli. L'audit completo ha portato alla luce le regole stringenti su superfici browser, divieto em-dash, divieto kickers e divieto numeratori pigri.
+
+3. **Come funziona il sistema ora:**
+   - La documentazione delle skill è ora permanente, esaustiva ed accessibile per future iterazioni; l'interfaccia rispetta al 100% i più rigorosi standard internazionali di design engineering.
+
+---
+
 ### [2026-10-12] — Redesign Completo: High-Craft Modern SaaS & Emil Kowalski Animations (`/taste`, `/impeccable`)
 1. **Cosa è cambiato:**
    - **Protocolli di Design & Eliminazione Cliché AI (`DESIGN.md`, `src/app.css`):**

@@ -338,10 +338,10 @@
 </script>
 
 <svelte:head>
-  <title>{selectedTemplate ? `${selectedTemplate.title} — Modello Fac-simile Gratuito | COMPILALO` : 'Catalogo 32 Modelli ed Autocertificazioni PA Gratuiti | COMPILALO'}</title>
+  <title>{selectedTemplate ? `${selectedTemplate.title} - Modello Fac-simile Gratuito | COMPILALO` : 'Catalogo 32 Modelli ed Autocertificazioni PA Gratuiti | COMPILALO'}</title>
   <meta name="description" content="{selectedTemplate ? `${selectedTemplate.title}: ${selectedTemplate.description}. Modello fac-simile conforme a ${selectedTemplate.normativaRiferimento || 'legge italiana'}. Compila e firma subito gratis in PDF e DOCX.` : '32 modelli pronti della Pubblica Amministrazione: autocertificazioni DPR 445/2000, deleghe, ricorsi multe, contratti locazione e disdette.'}" />
   <link rel="canonical" href="https://compilalo.it/compila" />
-  <meta property="og:title" content="{selectedTemplate.title} — Modello Fac-simile Gratuito | COMPILALO" />
+  <meta property="og:title" content="{selectedTemplate.title} - Modello Fac-simile Gratuito | COMPILALO" />
   <meta property="og:description" content="{selectedTemplate.description}" />
   <meta property="og:url" content="https://compilalo.it/compila?t={selectedTemplate.slug}" />
   <script type="application/ld+json">

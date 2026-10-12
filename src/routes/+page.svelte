@@ -30,7 +30,9 @@
     ShieldCheck,
     FileCode2,
     ChevronRight,
-    ArrowUpRight
+    ArrowUpRight,
+    HardDrive,
+    WifiOff
   } from 'lucide-svelte';
   import SignaturePad from 'signature_pad';
 
@@ -877,14 +879,10 @@
     
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-200 pb-4">
       <div>
-        <div class="flex items-center space-x-2 text-xs font-mono uppercase text-[#2563EB] tracking-wider font-semibold">
-          <FileCode2 class="w-4 h-4" />
-          <span>Catalogo Legale Open-Access</span>
-        </div>
-        <h2 class="font-serif text-3xl font-bold text-[#09090B] mt-1">
+        <h2 class="font-serif text-3xl font-bold text-[#09090B]">
           Non hai un file PDF pronto? Scegli un modello.
         </h2>
-        <p class="text-xs text-zinc-600 mt-0.5">
+        <p class="text-xs text-zinc-600 mt-1">
           32 modelli ufficiali della Pubblica Amministrazione e contratti comuni, pronti per essere compilati ed esportati in PDF e Word (.docx).
         </p>
       </div>
@@ -953,32 +951,31 @@
        ========================================================================= -->
   <section class="craft-card rounded-2xl p-8 sm:p-10 space-y-8 border border-zinc-200/90 shadow-sm">
     <div class="max-w-2xl">
-      <span class="text-xs font-mono uppercase tracking-wider text-emerald-700 font-bold">SOVRANITÀ DEI DATI</span>
-      <h2 class="font-serif text-3xl font-bold text-[#09090B] mt-1">
+      <h2 class="font-serif text-3xl font-bold text-[#09090B]">
         Perché i tuoi dati personali sono al sicuro al 100%
       </h2>
-      <p class="text-xs sm:text-sm text-zinc-600 mt-1.5 leading-relaxed">
+      <p class="text-xs sm:text-sm text-zinc-600 mt-2 leading-relaxed">
         I normali siti web memorizzano documenti e codici fiscali sui loro database cloud. COMPILALO è progettato con un'architettura <strong>Zero-Knowledge</strong> che rende fisicamente impossibile la fuoriuscita dei tuoi dati.
       </p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
       
-      <!-- Passo 1 -->
+      <!-- Pilastro 1: Memoria Locale -->
       <div class="p-5 rounded-xl bg-zinc-50/70 border border-zinc-200/80 space-y-3">
-        <div class="w-8 h-8 rounded-lg bg-[#09090B] text-white flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
-          01
+        <div class="w-8 h-8 rounded-lg bg-[#09090B] text-white flex items-center justify-center shadow-2xs">
+          <HardDrive class="w-4 h-4" />
         </div>
-        <h4 class="font-bold text-sm text-[#09090B]">Inserisci i dati una volta</h4>
+        <h4 class="font-bold text-sm text-[#09090B]">Memoria Protetta Locale</h4>
         <p class="text-xs text-zinc-500 leading-relaxed">
           I tuoi dati anagrafici vengono salvati esclusivamente nella memoria protetta del tuo browser via IndexedDB e WebCrypto API.
         </p>
       </div>
 
-      <!-- Passo 2 -->
+      <!-- Pilastro 2: Crittografia AES-GCM-256 -->
       <div class="p-5 rounded-xl bg-zinc-50/70 border border-zinc-200/80 space-y-3">
-        <div class="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
-          02
+        <div class="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center shadow-2xs">
+          <ShieldCheck class="w-4 h-4" />
         </div>
         <h4 class="font-bold text-sm text-[#09090B]">Crittografia AES-GCM-256</h4>
         <p class="text-xs text-zinc-500 leading-relaxed">
@@ -986,10 +983,10 @@
         </p>
       </div>
 
-      <!-- Passo 3 -->
+      <!-- Pilastro 3: Zero Chiamate di Rete -->
       <div class="p-5 rounded-xl bg-zinc-50/70 border border-zinc-200/80 space-y-3">
-        <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
-          03
+        <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+          <WifiOff class="w-4 h-4" />
         </div>
         <h4 class="font-bold text-sm text-[#09090B]">Zero Chiamate di Rete</h4>
         <p class="text-xs text-zinc-500 leading-relaxed">
